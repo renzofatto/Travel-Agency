@@ -1,10 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { DollarSign, BarChart3 } from 'lucide-react'
+import { Plus, BarChart3, DollarSign } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import AddExpenseDialog from '@/components/expenses/add-expense-dialog'
-import ExpenseCard from '@/components/expenses/expense-card'
+import RecordPaymentDialog from '@/components/expenses/record-payment-dialog'
+import TransactionList from '@/components/expenses/transaction-list'
+import PersonalBalanceCard from '@/components/expenses/personal-balance-card'
 import { calculateBalances } from '@/lib/utils/expense-calculator'
 
 export default async function GroupExpensesPage({
@@ -35,12 +37,12 @@ export default async function GroupExpensesPage({
     notFound()
   }
 
-  // Fetch all group members for the form
+  // Fetch all group members
   const { data: members } = await supabase
     .from('group_members')
     .select(`
       user_id,
-      users (
+      users!inner (
         id,
         full_name,
         avatar_url
@@ -54,147 +56,216 @@ export default async function GroupExpensesPage({
     avatar_url: m.users.avatar_url,
   })) || []
 
-  // Fetch expenses with splits and user details
+  const membersForDialog = members?.map((m: any) => ({
+    user_id: m.user_id,
+    users: {
+      id: m.users.id,
+      full_name: m.users.full_name,
+      avatar_url: m.users.avatar_url,
+    },
+  })) || []
+
+  // Fetch expenses with payer details
   const { data: expenses } = await supabase
     .from('expenses')
     .select(`
-      *,
-      paid_by_user:users!expenses_paid_by_fkey (
+      id,
+      description,
+      amount,
+      currency,
+      category,
+      paid_by,
+      created_at,
+      payer:users!expenses_paid_by_fkey (
         id,
         full_name,
         avatar_url
       ),
       expense_splits (
-        id,
         user_id,
         amount_owed,
-        percentage,
-        is_settled,
-        users (
-          id,
-          full_name,
-          avatar_url
-        )
+        is_settled
       )
     `)
     .eq('group_id', id)
     .order('created_at', { ascending: false })
 
-  // Calculate total spent
-  const totalSpent = expenses?.reduce((sum, exp) => sum + exp.amount, 0) || 0
+  const expensesList = expenses?.map((exp: any) => ({
+    id: exp.id,
+    description: exp.description,
+    amount: exp.amount,
+    currency: exp.currency,
+    category: exp.category,
+    paid_by: exp.paid_by,
+    created_at: exp.created_at,
+    payer: {
+      id: exp.payer.id,
+      full_name: exp.payer.full_name,
+      avatar_url: exp.payer.avatar_url,
+    },
+  })) || []
 
-  // Calculate balances
+  // Fetch payments
+  const { data: payments } = await supabase
+    .from('expense_payments')
+    .select(`
+      id,
+      from_user_id,
+      to_user_id,
+      amount,
+      currency,
+      description,
+      payment_date,
+      from_user:users!from_user_id (
+        id,
+        full_name,
+        avatar_url
+      ),
+      to_user:users!to_user_id (
+        id,
+        full_name,
+        avatar_url
+      )
+    `)
+    .eq('group_id', id)
+    .order('payment_date', { ascending: false })
+
+  const paymentsList = payments?.map((p: any) => ({
+    id: p.id,
+    from_user_id: p.from_user_id,
+    to_user_id: p.to_user_id,
+    amount: p.amount,
+    currency: p.currency,
+    description: p.description,
+    payment_date: p.payment_date,
+    from_user: {
+      id: p.from_user.id,
+      full_name: p.from_user.full_name,
+      avatar_url: p.from_user.avatar_url,
+    },
+    to_user: {
+      id: p.to_user.id,
+      full_name: p.to_user.full_name,
+      avatar_url: p.to_user.avatar_url,
+    },
+  })) || []
+
+  // Calculate balances (including payments)
   const memberIds = membersList.map((m) => m.id)
-  const balances = calculateBalances(
-    expenses?.map((exp) => ({
-      id: exp.id,
-      amount: exp.amount,
-      paid_by: exp.paid_by,
-      expense_splits: exp.expense_splits.map((s: any) => ({
-        user_id: s.user_id,
-        amount_owed: s.amount_owed,
-        is_settled: s.is_settled,
-      })),
-    })) || [],
-    memberIds
-  )
+  const expensesForCalc = expenses?.map((exp: any) => ({
+    id: exp.id,
+    amount: exp.amount,
+    paid_by: exp.paid_by,
+    expense_splits: exp.expense_splits.map((s: any) => ({
+      user_id: s.user_id,
+      amount_owed: s.amount_owed,
+      is_settled: s.is_settled,
+    })),
+  })) || []
+
+  const paymentsForCalc = paymentsList.map((p) => ({
+    from_user_id: p.from_user_id,
+    to_user_id: p.to_user_id,
+    amount: p.amount,
+  }))
+
+  const balances = calculateBalances(expensesForCalc, memberIds, paymentsForCalc)
 
   // Get current user's balance
   const userBalance = balances[user.id]
 
+  // Calculate total spent
+  const totalSpent = expenses?.reduce((sum, exp) => sum + exp.amount, 0) || 0
+  const totalPayments = paymentsList.reduce((sum, p) => sum + p.amount, 0)
+
   return (
     <div className="space-y-6">
-      {/* Header with Stats */}
+      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Expenses</h2>
-          <div className="flex items-center gap-6 mt-2">
-            <div>
-              <p className="text-sm text-gray-600">Total Spent</p>
-              <p className="text-xl font-semibold text-gray-900">
-                ${totalSpent.toFixed(2)}
-              </p>
-            </div>
-            {userBalance && (
-              <div>
-                <p className="text-sm text-gray-600">Your Balance</p>
-                <p
-                  className={`text-xl font-semibold ${
-                    userBalance.balance > 0
-                      ? 'text-green-600'
-                      : userBalance.balance < 0
-                      ? 'text-orange-600'
-                      : 'text-gray-900'
-                  }`}
-                >
-                  {userBalance.balance > 0 && '+'}
-                  ${userBalance.balance.toFixed(2)}
-                </p>
-              </div>
-            )}
-            <div>
-              <p className="text-sm text-gray-600">Total Expenses</p>
-              <p className="text-xl font-semibold text-gray-900">{expenses?.length || 0}</p>
-            </div>
-          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Expenses & Payments</h2>
+          <p className="text-gray-600 mt-1">
+            Track expenses and record payments to settle debts
+          </p>
         </div>
         <div className="flex gap-2">
           <Link href={`/groups/${id}/expenses/balances`}>
             <Button variant="outline">
               <BarChart3 className="w-4 h-4 mr-2" />
-              View Balances
+              View All Balances
             </Button>
           </Link>
+          <RecordPaymentDialog
+            groupId={id}
+            members={membersForDialog}
+            currentUserId={user.id}
+          />
           <AddExpenseDialog groupId={id} members={membersList} />
         </div>
       </div>
 
-      {/* Balance Summary */}
-      {userBalance && (userBalance.balance > 0.01 || userBalance.balance < -0.01) && (
-        <div
-          className={`p-4 rounded-lg border-2 ${
-            userBalance.balance > 0
-              ? 'bg-green-50 border-green-200'
-              : 'bg-orange-50 border-orange-200'
-          }`}
-        >
-          <p className="text-sm font-medium">
-            {userBalance.balance > 0 ? (
-              <>
-                You are owed <span className="text-green-700 font-bold">${userBalance.balance.toFixed(2)}</span>
-              </>
-            ) : (
-              <>
-                You owe <span className="text-orange-700 font-bold">${Math.abs(userBalance.balance).toFixed(2)}</span>
-              </>
-            )}
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white border rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Expenses</p>
+          <p className="text-2xl font-bold text-gray-900">
+            ${totalSpent.toFixed(2)}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            {expenses?.length || 0} expense{expenses?.length !== 1 ? 's' : ''}
           </p>
         </div>
-      )}
 
-      {/* Expenses List */}
-      {expenses && expenses.length > 0 ? (
-        <div className="space-y-4">
-          {expenses.map((expense: any) => (
-            <ExpenseCard
-              key={expense.id}
-              expense={expense}
-              groupId={id}
-              members={membersList}
-              currentUserId={user.id}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No expenses yet</h3>
-          <p className="text-gray-600 mb-4">
-            Start tracking expenses for your trip
+        <div className="bg-white border rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Total Payments</p>
+          <p className="text-2xl font-bold text-blue-600">
+            ${totalPayments.toFixed(2)}
           </p>
-          <AddExpenseDialog groupId={id} members={membersList} />
+          <p className="text-xs text-gray-500 mt-1">
+            {paymentsList.length} payment{paymentsList.length !== 1 ? 's' : ''}
+          </p>
         </div>
-      )}
+
+        <div className="bg-white border rounded-lg p-4">
+          <p className="text-sm text-gray-600 mb-1">Transactions</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {(expenses?.length || 0) + paymentsList.length}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Combined expenses and payments
+          </p>
+        </div>
+      </div>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Personal Balance Card */}
+        <div className="lg:col-span-1">
+          {userBalance && (
+            <PersonalBalanceCard
+              balance={userBalance}
+              allBalances={balances}
+              members={membersList}
+              currency="USD"
+            />
+          )}
+        </div>
+
+        {/* Right: Transaction List */}
+        <div className="lg:col-span-2">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">All Transactions</h3>
+            <p className="text-sm text-gray-600">
+              Expenses and payments sorted by date
+            </p>
+          </div>
+          <TransactionList
+            expenses={expensesList}
+            payments={paymentsList}
+            currentUserId={user.id}
+          />
+        </div>
+      </div>
     </div>
   )
 }
