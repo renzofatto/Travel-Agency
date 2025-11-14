@@ -18,12 +18,19 @@ type Balance = {
   owed: number
 }
 
+type Payment = {
+  from_user_id: string
+  to_user_id: string
+  amount: number
+}
+
 /**
- * Calculate balances for all members based on expenses
+ * Calculate balances for all members based on expenses and payments
  */
 export function calculateBalances(
   expenses: Expense[],
-  memberIds: string[]
+  memberIds: string[],
+  payments: Payment[] = []
 ): Record<string, Balance> {
   const balances: Record<string, Balance> = {}
 
@@ -52,9 +59,19 @@ export function calculateBalances(
     })
   })
 
-  // Calculate final balance (paid - owed)
+  // Calculate initial balance (paid - owed)
   Object.keys(balances).forEach((userId) => {
     balances[userId].balance = balances[userId].paid - balances[userId].owed
+  })
+
+  // Apply payments to adjust balances
+  payments.forEach((payment) => {
+    if (balances[payment.from_user_id] && balances[payment.to_user_id]) {
+      // Person making payment: their balance decreases (they owe less or are owed less)
+      balances[payment.from_user_id].balance -= payment.amount
+      // Person receiving payment: their balance increases (they are owed more or owe less)
+      balances[payment.to_user_id].balance += payment.amount
+    }
   })
 
   return balances
@@ -138,11 +155,11 @@ export function calculateSplits(
 
   if (splitType === 'percentage') {
     return members.map((member) => {
-      const percentage = member.percentage || 0
+      const percentage = member.percentage ?? 0
       return {
         user_id: member.user_id,
         amount_owed: Math.round(((amount * percentage) / 100) * 100) / 100,
-        percentage,
+        percentage: percentage > 0 ? percentage : null,
       }
     })
   }
@@ -150,7 +167,7 @@ export function calculateSplits(
   // custom
   return members.map((member) => ({
     user_id: member.user_id,
-    amount_owed: member.amount_owed || 0,
+    amount_owed: Math.round((member.amount_owed || 0) * 100) / 100,
     percentage: null,
   }))
 }

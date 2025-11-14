@@ -21,8 +21,8 @@ export type Currency = z.infer<typeof currencyEnum>
 
 const expenseSplitSchema = z.object({
   user_id: z.string().uuid(),
-  amount_owed: z.number().min(0).optional(),
-  percentage: z.number().min(0).max(100).optional(),
+  amount_owed: z.number().min(0).optional().or(z.literal(undefined)),
+  percentage: z.number().min(0).max(100).optional().or(z.literal(undefined)),
 })
 
 export const createExpenseSchema = z.object({

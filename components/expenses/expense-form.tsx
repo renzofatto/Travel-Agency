@@ -76,8 +76,8 @@ export default function ExpenseForm({
       group_id: groupId,
       splits: members.map((member) => ({
         user_id: member.id,
-        percentage: 0,
-        amount_owed: 0,
+        percentage: undefined,
+        amount_owed: undefined,
       })),
     },
   })
@@ -95,17 +95,42 @@ export default function ExpenseForm({
   useEffect(() => {
     const splits = form.getValues('splits')
 
-    if (splitType === 'equal' && amount > 0) {
-      const equalAmount = amount / members.length
+    if (splitType === 'equal') {
+      if (amount > 0) {
+        const equalAmount = amount / members.length
+        splits.forEach((_, index) => {
+          form.setValue(`splits.${index}.amount_owed`, Math.round(equalAmount * 100) / 100)
+          form.setValue(`splits.${index}.percentage`, undefined)
+        })
+      } else {
+        // Reset to undefined when amount is 0
+        splits.forEach((_, index) => {
+          form.setValue(`splits.${index}.amount_owed`, 0)
+          form.setValue(`splits.${index}.percentage`, undefined)
+        })
+      }
+    } else if (splitType === 'percentage') {
+      if (amount > 0) {
+        splits.forEach((split, index) => {
+          const percentage = split.percentage || 0
+          const calculatedAmount = (amount * percentage) / 100
+          form.setValue(`splits.${index}.amount_owed`, Math.round(calculatedAmount * 100) / 100)
+        })
+      } else {
+        // Reset amounts when total is 0
+        splits.forEach((_, index) => {
+          form.setValue(`splits.${index}.amount_owed`, 0)
+        })
+      }
+    } else if (splitType === 'custom') {
+      // For custom, set percentage to undefined
       splits.forEach((_, index) => {
-        form.setValue(`splits.${index}.amount_owed`, Math.round(equalAmount * 100) / 100)
-        form.setValue(`splits.${index}.percentage`, null as any)
-      })
-    } else if (splitType === 'percentage' && amount > 0) {
-      splits.forEach((split, index) => {
-        const percentage = split.percentage || 0
-        const calculatedAmount = (amount * percentage) / 100
-        form.setValue(`splits.${index}.amount_owed`, Math.round(calculatedAmount * 100) / 100)
+        form.setValue(`splits.${index}.percentage`, undefined)
+        // Keep amount_owed as is, or set to 0 if undefined
+        const currentAmount = form.getValues(`splits.${index}.amount_owed`)
+        if (currentAmount === undefined) {
+          form.setValue(`splits.${index}.amount_owed`, 0)
+        }
       })
     }
   }, [splitType, amount, members.length, form])

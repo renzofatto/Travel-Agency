@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, History } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import BalanceDashboard from '@/components/expenses/balance-dashboard'
+import RecordPaymentDialog from '@/components/expenses/record-payment-dialog'
+import PaymentHistory from '@/components/expenses/payment-history'
 
 export default async function GroupBalancesPage({
   params,
@@ -33,12 +35,22 @@ export default async function GroupBalancesPage({
     notFound()
   }
 
+  // Check if user is admin
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = userProfile?.role === 'admin'
+  const isLeader = membership.role === 'leader'
+
   // Fetch all group members
   const { data: members } = await supabase
     .from('group_members')
     .select(`
       user_id,
-      users (
+      users!inner (
         id,
         full_name,
         avatar_url
@@ -50,6 +62,15 @@ export default async function GroupBalancesPage({
     id: m.users.id,
     full_name: m.users.full_name,
     avatar_url: m.users.avatar_url,
+  })) || []
+
+  const membersForDialog = members?.map((m: any) => ({
+    user_id: m.user_id,
+    users: {
+      id: m.users.id,
+      full_name: m.users.full_name,
+      avatar_url: m.users.avatar_url,
+    },
   })) || []
 
   // Fetch expenses with splits
@@ -78,6 +99,47 @@ export default async function GroupBalancesPage({
     })),
   })) || []
 
+  // Fetch payments
+  const { data: payments } = await supabase
+    .from('expense_payments')
+    .select(`
+      *,
+      from_user:users!from_user_id (
+        id,
+        full_name,
+        avatar_url
+      ),
+      to_user:users!to_user_id (
+        id,
+        full_name,
+        avatar_url
+      )
+    `)
+    .eq('group_id', id)
+    .order('payment_date', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  const paymentsList = payments?.map((p: any) => ({
+    id: p.id,
+    from_user_id: p.from_user_id,
+    to_user_id: p.to_user_id,
+    amount: p.amount,
+    currency: p.currency,
+    description: p.description,
+    payment_date: p.payment_date,
+    created_by: p.created_by,
+    from_user: {
+      id: p.from_user.id,
+      full_name: p.from_user.full_name,
+      avatar_url: p.from_user.avatar_url,
+    },
+    to_user: {
+      id: p.to_user.id,
+      full_name: p.to_user.full_name,
+      avatar_url: p.to_user.avatar_url,
+    },
+  })) || []
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -91,9 +153,14 @@ export default async function GroupBalancesPage({
           </Link>
           <h2 className="text-2xl font-bold text-gray-900">Balances & Settlements</h2>
           <p className="text-gray-600 mt-1">
-            See who owes what and get settlement suggestions
+            See who owes what and record payments to settle debts
           </p>
         </div>
+        <RecordPaymentDialog
+          groupId={id}
+          members={membersForDialog}
+          currentUserId={user.id}
+        />
       </div>
 
       {/* Balance Dashboard */}
@@ -101,7 +168,22 @@ export default async function GroupBalancesPage({
         expenses={expensesList}
         members={membersList}
         currentUserId={user.id}
+        payments={paymentsList}
       />
+
+      {/* Payment History */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <History className="w-5 h-5 text-gray-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Payment History</h3>
+        </div>
+        <PaymentHistory
+          payments={paymentsList}
+          currentUserId={user.id}
+          isAdmin={isAdmin}
+          isLeader={isLeader}
+        />
+      </div>
     </div>
   )
 }

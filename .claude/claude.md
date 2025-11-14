@@ -74,7 +74,9 @@ travel-agency/
 │   │   ├── expense-card.tsx
 │   │   ├── add-expense-dialog.tsx
 │   │   ├── balance-dashboard.tsx
-│   │   └── settle-button.tsx
+│   │   ├── settle-button.tsx
+│   │   ├── record-payment-dialog.tsx  # Payment recording (2025-11-15)
+│   │   └── payment-history.tsx        # Payment list (2025-11-15)
 │   ├── documents/              # ✅ Document components
 │   │   ├── upload-document-dialog.tsx
 │   │   └── document-card.tsx
@@ -86,6 +88,10 @@ travel-agency/
 │   ├── notes/                  # ✅ Notes components
 │   │   ├── note-editor.tsx
 │   │   └── note-card.tsx
+│   ├── profile/                # ✅ Profile components (2025-11-15)
+│   │   ├── edit-profile-form.tsx
+│   │   ├── edit-avatar-dialog.tsx
+│   │   └── profile-content.tsx
 │   └── admin/                  # ✅ Admin components
 │       ├── stats-card.tsx
 │       └── user-role-toggle.tsx
@@ -101,19 +107,23 @@ travel-agency/
 │   │   ├── member-actions.ts
 │   │   ├── itinerary-actions.ts
 │   │   ├── expense-actions.ts
+│   │   ├── payment-actions.ts       # Payment CRUD (2025-11-15)
 │   │   ├── document-actions.ts
 │   │   ├── photo-actions.ts
 │   │   ├── note-actions.ts
+│   │   ├── profile-actions.ts       # Profile editing (2025-11-15)
 │   │   └── admin-actions.ts
 │   ├── validations/            # ✅ Zod schemas
 │   │   ├── group.ts
 │   │   ├── itinerary.ts
 │   │   ├── expense.ts
+│   │   ├── payment.ts              # Payment validation (2025-11-15)
 │   │   ├── document.ts
 │   │   ├── photo.ts
-│   │   └── note.ts
+│   │   ├── note.ts
+│   │   └── profile.ts              # Profile validation (2025-11-15)
 │   ├── utils/
-│   │   └── expense-calculator.ts # ✅ Balance calculations
+│   │   └── expense-calculator.ts # ✅ Balance calculations (updated 2025-11-15)
 │   └── utils.ts
 ├── hooks/                      # Custom React hooks
 ├── supabase/
@@ -124,7 +134,7 @@ travel-agency/
 
 ## Database Schema
 
-### Tables (10 total):
+### Tables (11 total):
 1. **users** - User profiles (extends auth.users)
    - Columns: id, email, full_name, avatar_url, role
    - Roles: 'admin', 'user'
@@ -158,8 +168,14 @@ travel-agency/
 9. **expense_splits** - How expenses are divided
    - Columns: id, expense_id, user_id, amount_owed, percentage, is_settled
 
-10. **group_notes** - Collaborative notes
-    - Columns: id, group_id, title, content, last_edited_by
+10. **expense_payments** - Payments between members (implemented 2025-11-15)
+    - Columns: id, group_id, from_user_id, to_user_id, amount, currency, description, payment_date, created_by
+    - Tracks partial payments to settle debts
+    - Constraints: from_user_id != to_user_id, amount > 0
+    - Indexed on: group_id, from_user_id, to_user_id, payment_date
+
+11. **group_notes** - Collaborative notes
+    - Columns: id, group_id, title, content, created_by, last_edited_by
 
 ### Key Relationships:
 - Users create groups (travel_groups.created_by → users.id)
@@ -275,19 +291,29 @@ travel-agency/
   - Mark individual splits as settled
   - Visual status (settled/pending)
   - Per-user settle button
+- **Payment System** (implemented 2025-11-15)
+  - Record partial payments between members (lib/actions/payment-actions.ts)
+  - Payment history with full audit trail
+  - Balance calculation considers both expenses AND payments
+  - Delete payments (creator, leader, or admin only)
+  - Validation: can't pay yourself, amount must be positive
+  - Database table: expense_payments with RLS policies
 - **Pages** (implemented 2025-11-14)
   - Expenses list (app/groups/[id]/expenses/page.tsx)
   - Balance dashboard (app/groups/[id]/expenses/balances/page.tsx)
-- **Components** (implemented 2025-11-14)
+- **Components** (implemented 2025-11-14 & 2025-11-15)
   - ExpenseForm - Multi-split form with real-time validation
   - ExpenseCard - Expandable expense card
-  - BalanceDashboard - Balance and settlement view
+  - BalanceDashboard - Balance and settlement view (updated to include payments)
   - SettleButton - Mark as settled button
   - AddExpenseDialog - Create expense modal
-- **Validation** (implemented 2025-11-14)
-  - Zod schemas (lib/validations/expense.ts)
+  - RecordPaymentDialog - Record payment modal (2025-11-15)
+  - PaymentHistory - Display payment list (2025-11-15)
+- **Validation** (implemented 2025-11-14 & 2025-11-15)
+  - Zod schemas (lib/validations/expense.ts, lib/validations/payment.ts)
   - Percentage sum validation (must equal 100%)
   - Custom amounts validation (must equal total)
+  - Payment validation (positive amount, different users)
 
 ### ✅ COMPLETED (Phase 6 - Documents & Photos):
 - **Document Management** (implemented 2025-11-14)
@@ -405,7 +431,37 @@ travel-agency/
   - Prevent admins from removing own privileges
   - RLS policies enforcement
 
-### 🚧 TO BE IMPLEMENTED (Phase 9+):
+### ✅ COMPLETED (Phase 9 - Profile Editing):
+- **Profile Management** (implemented 2025-11-15)
+  - Edit profile page (app/dashboard/profile/page.tsx)
+  - Update full name (lib/actions/profile-actions.ts)
+  - Avatar upload with preview (max 5MB, JPG/PNG/WEBP)
+  - Delete old avatar automatically on new upload
+  - Rollback on database failure
+  - Components: EditProfileForm, EditAvatarDialog, ProfileContent
+  - Validation: Zod schema (lib/validations/profile.ts)
+  - Storage: avatars bucket with RLS policies
+  - Users can only edit their own profile
+
+### ✅ COMPLETED (Bug Fixes & Improvements):
+- **Notes System Fixes** (2025-11-15)
+  - Added Notes tab to group layout navigation
+  - Added `created_by` column to group_notes table
+  - Removed UNIQUE constraint to allow multiple notes per group
+  - Updated RLS policies for note deletion
+  - Migration: supabase/migrations/add_notes_created_by.sql
+- **Storage Setup** (2025-11-15)
+  - Made storage-setup.sql idempotent with DROP POLICY IF EXISTS
+  - Fixed RLS policy errors for photo/document uploads
+  - Can run setup script multiple times without errors
+- **Expense System Fixes** (2025-11-15)
+  - Fixed Equal Split expenses - now properly calculates amount_owed
+  - Fixed Custom Amounts expenses - validation now works correctly
+  - Updated form to use undefined instead of 0 for initial values
+  - Enhanced calculateSplits function with proper null handling
+  - All expense types now work correctly
+
+### 🚧 TO BE IMPLEMENTED (Phase 10+):
 - Drag & drop for itinerary reordering
 - Notifications system
 - Email invitations
@@ -521,9 +577,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ✅ **Configured** (via supabase/storage-setup.sql):
 - `travel-documents` (private) - Trip documents with RLS policies
 - `photos` (public) - Trip photos with RLS policies
+- `avatars` (public) - User avatars with RLS policies (2025-11-15)
 
 **To be created:**
-- `avatars` (public) - User avatars
 - `group-covers` (public) - Group cover images
 - `receipts` (private) - Expense receipts
 
@@ -533,6 +589,7 @@ Available for use:
 - button, card, input, label, form
 - select, textarea, dialog, dropdown-menu
 - avatar, badge, tabs, table, sonner
+- alert-dialog (added 2025-11-15)
 
 To add more: `npx shadcn@latest add [component-name]`
 
@@ -566,6 +623,10 @@ When implementing features, test:
 - `RESUMEN.md` - Current project status
 - `supabase/schema.sql` - Database structure
 - `supabase/rls-policies.sql` - Security policies
+- `PAYMENT_SYSTEM_SETUP.md` - Payment system guide (2025-11-15)
+- `PROFILE_SETUP.md` - Profile editing setup (2025-11-15)
+- `NOTES_MIGRATION.md` - Notes table migration (2025-11-15)
+- `STORAGE_SETUP_INSTRUCTIONS.md` - Storage configuration (2025-11-15)
 
 ## Common Patterns Implemented
 

@@ -23,10 +23,17 @@ interface Expense {
   }>
 }
 
+interface Payment {
+  from_user_id: string
+  to_user_id: string
+  amount: number
+}
+
 interface BalanceDashboardProps {
   expenses: Expense[]
   members: Member[]
   currentUserId: string
+  payments?: Payment[]
 }
 
 const currencySymbol = '$'
@@ -35,9 +42,10 @@ export default function BalanceDashboard({
   expenses,
   members,
   currentUserId,
+  payments = [],
 }: BalanceDashboardProps) {
   const memberIds = members.map((m) => m.id)
-  const balances = calculateBalances(expenses, memberIds)
+  const balances = calculateBalances(expenses, memberIds, payments)
   const settlements = calculateSettlements(balances)
 
   // Get member info by ID
