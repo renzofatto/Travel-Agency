@@ -16,6 +16,7 @@
 -- ============================================
 
 -- Allow authenticated users to upload documents to their groups
+DROP POLICY IF EXISTS "Group members can upload documents" ON storage.objects;
 CREATE POLICY "Group members can upload documents"
 ON storage.objects FOR INSERT
 TO authenticated
@@ -25,6 +26,7 @@ WITH CHECK (
 );
 
 -- Allow group members to view documents
+DROP POLICY IF EXISTS "Group members can view documents" ON storage.objects;
 CREATE POLICY "Group members can view documents"
 ON storage.objects FOR SELECT
 TO authenticated
@@ -39,6 +41,7 @@ USING (
 );
 
 -- Allow document owner or admins to delete
+DROP POLICY IF EXISTS "Document owner can delete" ON storage.objects;
 CREATE POLICY "Document owner can delete"
 ON storage.objects FOR DELETE
 TO authenticated
@@ -59,6 +62,7 @@ USING (
 -- ============================================
 
 -- Allow authenticated users to upload photos
+DROP POLICY IF EXISTS "Group members can upload photos" ON storage.objects;
 CREATE POLICY "Group members can upload photos"
 ON storage.objects FOR INSERT
 TO authenticated
@@ -68,12 +72,14 @@ WITH CHECK (
 );
 
 -- Allow public read access to photos
+DROP POLICY IF EXISTS "Photos are publicly accessible" ON storage.objects;
 CREATE POLICY "Photos are publicly accessible"
 ON storage.objects FOR SELECT
 TO public
 USING (bucket_id = 'photos');
 
 -- Allow photo owner or admins to delete
+DROP POLICY IF EXISTS "Photo owner can delete" ON storage.objects;
 CREATE POLICY "Photo owner can delete"
 ON storage.objects FOR DELETE
 TO authenticated
@@ -94,6 +100,7 @@ USING (
 -- ============================================
 
 -- Allow authenticated users to upload their own avatars
+DROP POLICY IF EXISTS "Users can upload their own avatar" ON storage.objects;
 CREATE POLICY "Users can upload their own avatar"
 ON storage.objects FOR INSERT
 TO authenticated
@@ -103,12 +110,14 @@ WITH CHECK (
 );
 
 -- Allow public read access to avatars
+DROP POLICY IF EXISTS "Avatars are publicly accessible" ON storage.objects;
 CREATE POLICY "Avatars are publicly accessible"
 ON storage.objects FOR SELECT
 TO public
 USING (bucket_id = 'avatars');
 
 -- Allow users to update their own avatars
+DROP POLICY IF EXISTS "Users can update their own avatar" ON storage.objects;
 CREATE POLICY "Users can update their own avatar"
 ON storage.objects FOR UPDATE
 TO authenticated
@@ -118,6 +127,7 @@ USING (
 );
 
 -- Allow users to delete their own avatars
+DROP POLICY IF EXISTS "Users can delete their own avatar" ON storage.objects;
 CREATE POLICY "Users can delete their own avatar"
 ON storage.objects FOR DELETE
 TO authenticated
