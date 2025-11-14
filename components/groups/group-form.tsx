@@ -130,7 +130,9 @@ export default function GroupForm({ mode, defaultValues }: GroupFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Cover Image */}
         <div className="space-y-2">
-          <FormLabel>Cover Image (Optional)</FormLabel>
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Cover Image (Optional)
+          </label>
           {coverImageUrl ? (
             <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100">
               <img

@@ -43,9 +43,11 @@ export const createItineraryItemSchema = z.object({
 
 export type CreateItineraryItemInput = z.infer<typeof createItineraryItemSchema>
 
-export const editItineraryItemSchema = createItineraryItemSchema.extend({
-  id: z.string().uuid(),
-})
+export const editItineraryItemSchema = createItineraryItemSchema.merge(
+  z.object({
+    id: z.string().uuid(),
+  })
+)
 
 export type EditItineraryItemInput = z.infer<typeof editItineraryItemSchema>
 

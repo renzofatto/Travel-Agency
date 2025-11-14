@@ -35,8 +35,10 @@ export const createGroupSchema = z.object({
 
 export type CreateGroupInput = z.infer<typeof createGroupSchema>
 
-export const editGroupSchema = createGroupSchema.extend({
-  id: z.string().uuid(),
-})
+export const editGroupSchema = createGroupSchema.merge(
+  z.object({
+    id: z.string().uuid(),
+  })
+)
 
 export type EditGroupInput = z.infer<typeof editGroupSchema>

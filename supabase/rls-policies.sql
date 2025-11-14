@@ -75,10 +75,10 @@ CREATE POLICY "Users can view their groups"
     is_group_member(auth.uid(), id)
   );
 
--- Admins can create groups
-CREATE POLICY "Admins can create groups"
+-- Any authenticated user can create groups
+CREATE POLICY "Authenticated users can create groups"
   ON public.travel_groups FOR INSERT
-  WITH CHECK (is_admin(auth.uid()));
+  WITH CHECK (auth.uid() IS NOT NULL);
 
 -- Admins and group leaders can update groups
 CREATE POLICY "Admins and leaders can update groups"
@@ -353,10 +353,26 @@ CREATE POLICY "Members can view group notes"
     is_group_member(auth.uid(), group_id)
   );
 
+-- Members can create group notes
+CREATE POLICY "Members can create group notes"
+  ON public.group_notes FOR INSERT
+  WITH CHECK (
+    is_admin(auth.uid()) OR
+    is_group_member(auth.uid(), group_id)
+  );
+
 -- Members can update group notes
 CREATE POLICY "Members can update group notes"
   ON public.group_notes FOR UPDATE
   USING (
     is_admin(auth.uid()) OR
     is_group_member(auth.uid(), group_id)
+  );
+
+-- Leaders and admins can delete group notes
+CREATE POLICY "Leaders can delete group notes"
+  ON public.group_notes FOR DELETE
+  USING (
+    is_admin(auth.uid()) OR
+    is_group_leader(auth.uid(), group_id)
   );

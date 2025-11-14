@@ -25,6 +25,28 @@ export async function createGroup(data: CreateGroupInput) {
     return { error: validation.error.issues[0].message }
   }
 
+  // Ensure user profile exists
+  const { data: userProfile, error: profileError } = await supabase
+    .from('users')
+    .select('id')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError || !userProfile) {
+    // Create user profile if it doesn't exist
+    const { error: createProfileError } = await supabase.from('users').insert({
+      id: user.id,
+      email: user.email!,
+      full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+      role: 'user',
+    })
+
+    if (createProfileError) {
+      console.error('Error creating user profile:', createProfileError)
+      return { error: 'Failed to create user profile. Please try again.' }
+    }
+  }
+
   // Create group
   const { data: group, error: groupError } = await supabase
     .from('travel_groups')
@@ -42,7 +64,7 @@ export async function createGroup(data: CreateGroupInput) {
 
   if (groupError) {
     console.error('Error creating group:', groupError)
-    return { error: 'Failed to create group. Please try again.' }
+    return { error: `Failed to create group: ${groupError.message}` }
   }
 
   // Add creator as leader

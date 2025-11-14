@@ -74,9 +74,11 @@ export const createExpenseSchema = z.object({
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>
 
-export const editExpenseSchema = createExpenseSchema.extend({
-  id: z.string().uuid(),
-})
+export const editExpenseSchema = createExpenseSchema.merge(
+  z.object({
+    id: z.string().uuid(),
+  })
+)
 
 export type EditExpenseInput = z.infer<typeof editExpenseSchema>
 
