@@ -4,34 +4,38 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
-  LayoutDashboard,
   Users,
-  MapPin,
-  Receipt,
-  FileText,
-  Image,
   Settings,
   Menu,
   X,
+  Shield,
 } from 'lucide-react'
 import { useState } from 'react'
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'My Groups', href: '/dashboard/groups', icon: Users },
-  { name: 'My Trips', href: '/dashboard/trips', icon: MapPin },
-  { name: 'Expenses', href: '/dashboard/expenses', icon: Receipt },
-  { name: 'Documents', href: '/dashboard/documents', icon: FileText },
-  { name: 'Photos', href: '/dashboard/photos', icon: Image },
-]
+interface SidebarProps {
+  isAdmin?: boolean
+}
+
+const getNavigation = (isAdmin: boolean) => {
+  const nav = [
+    { name: 'My Groups', href: '/dashboard', icon: Users },
+  ]
+
+  if (isAdmin) {
+    nav.push({ name: 'Admin Panel', href: '/admin', icon: Shield })
+  }
+
+  return nav
+}
 
 const secondaryNavigation = [
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ isAdmin = false }: SidebarProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const navigation = getNavigation(isAdmin)
 
   return (
     <>

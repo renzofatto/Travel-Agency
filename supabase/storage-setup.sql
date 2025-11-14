@@ -8,6 +8,7 @@
 -- 2. Create the following buckets:
 --    - travel-documents (private)
 --    - photos (public)
+--    - avatars (public)
 -- 3. Then run this SQL to configure policies
 
 -- ============================================
@@ -89,6 +90,43 @@ USING (
 );
 
 -- ============================================
+-- STORAGE POLICIES FOR AVATARS (Public Bucket)
+-- ============================================
+
+-- Allow authenticated users to upload their own avatars
+CREATE POLICY "Users can upload their own avatar"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'avatars'
+  AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Allow public read access to avatars
+CREATE POLICY "Avatars are publicly accessible"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'avatars');
+
+-- Allow users to update their own avatars
+CREATE POLICY "Users can update their own avatar"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'avatars'
+  AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Allow users to delete their own avatars
+CREATE POLICY "Users can delete their own avatar"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'avatars'
+  AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- ============================================
 -- HELPER: How to create buckets via SQL (if needed)
 -- ============================================
 
@@ -96,4 +134,5 @@ USING (
 -- INSERT INTO storage.buckets (id, name, public)
 -- VALUES
 --   ('travel-documents', 'travel-documents', false),
---   ('photos', 'photos', true);
+--   ('photos', 'photos', true),
+--   ('avatars', 'avatars', true);

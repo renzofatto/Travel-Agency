@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Navbar from '@/components/layout/navbar'
 import Sidebar from '@/components/layout/sidebar'
 
-export default async function DashboardLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
@@ -25,7 +25,12 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .single()
 
-  const isAdmin = profile?.role === 'admin'
+  // Check if user is admin
+  if (profile?.role !== 'admin') {
+    redirect('/dashboard')
+  }
+
+  const isAdmin = true
 
   return (
     <div className="min-h-screen bg-gray-50">

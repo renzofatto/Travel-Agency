@@ -369,10 +369,11 @@ CREATE POLICY "Members can update group notes"
     is_group_member(auth.uid(), group_id)
   );
 
--- Leaders and admins can delete group notes
-CREATE POLICY "Leaders can delete group notes"
+-- Note creators, leaders, and admins can delete group notes
+CREATE POLICY "Note creators and leaders can delete notes"
   ON public.group_notes FOR DELETE
   USING (
     is_admin(auth.uid()) OR
-    is_group_leader(auth.uid(), group_id)
+    is_group_leader(auth.uid(), group_id) OR
+    created_by = auth.uid()
   );

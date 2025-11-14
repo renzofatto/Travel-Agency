@@ -148,12 +148,12 @@ CREATE TABLE public.expense_splits (
 CREATE TABLE public.group_notes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   group_id UUID REFERENCES public.travel_groups(id) ON DELETE CASCADE,
-  title TEXT DEFAULT 'Notas del Viaje',
+  title TEXT DEFAULT 'Untitled Note',
   content TEXT,
+  created_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
   last_edited_by UUID REFERENCES public.users(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(group_id)
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- ============================================
@@ -168,6 +168,8 @@ CREATE INDEX idx_photos_group_id ON public.photos(group_id);
 CREATE INDEX idx_expenses_group_id ON public.expenses(group_id);
 CREATE INDEX idx_expense_splits_expense_id ON public.expense_splits(expense_id);
 CREATE INDEX idx_expense_splits_user_id ON public.expense_splits(user_id);
+CREATE INDEX idx_group_notes_group_id ON public.group_notes(group_id);
+CREATE INDEX idx_group_notes_created_by ON public.group_notes(created_by);
 
 -- ============================================
 -- TRIGGERS for updated_at timestamps

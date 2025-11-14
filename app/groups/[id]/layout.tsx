@@ -172,6 +172,9 @@ export default async function GroupLayout({
                 <Link href={`/groups/${id}/photos`}>
                   <TabsTrigger value="photos">Photos</TabsTrigger>
                 </Link>
+                <Link href={`/groups/${id}/notes`}>
+                  <TabsTrigger value="notes">Notes</TabsTrigger>
+                </Link>
                 {canManage && (
                   <Link href={`/groups/${id}/settings`}>
                     <TabsTrigger value="settings">
