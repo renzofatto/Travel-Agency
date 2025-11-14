@@ -1,6 +1,6 @@
 # Resumen del Proyecto TravelHub
 
-## Estado Actual: Dashboard Implementado ✅ (Actualizado: 2025-11-14)
+## Estado Actual: Sistema de Gastos Implementado ✅ (Actualizado: 2025-11-14)
 
 ### Lo que se ha implementado:
 
@@ -144,28 +144,74 @@ travel-agency/
 └── RESUMEN.md                      ✅ Este archivo
 \`\`\`
 
-## Próximos Pasos (Roadmap Fase 3)
+## Fases Completadas ✅
 
-### Gestión de Grupos (Siguiente)
-1. **CRUD de Grupos** ⬅️ PRÓXIMO
-   - Formulario para crear grupo
-   - Subir imagen de portada a Supabase Storage
-   - Vista detallada del grupo con tabs
-   - Editar información del grupo
-   - Eliminar grupo (solo admin)
+### Fase 1: Infraestructura ✅
+- Configuración del proyecto
+- Autenticación
+- Landing page
 
-2. **Gestión de Miembros**
-   - Agregar miembros por email
-   - Lista de miembros con avatares
-   - Asignar/revocar rol de líder
-   - Remover miembros del grupo
+### Fase 2: Dashboard ✅ (2025-11-14)
+- Layout con sidebar y navbar ✅
+- Lista de grupos del usuario ✅
+- Estadísticas rápidas ✅
 
-### Ya Completado en Fase 2 ✅
-1. **Dashboard del Usuario** ✅ (2025-11-14)
-   - Layout con sidebar y navbar ✅
-   - Lista de grupos del usuario ✅
-   - Estadísticas rápidas ✅
-   - Acciones para crear/unirse a grupos ✅
+### Fase 3: Gestión de Grupos ✅ (2025-11-14)
+- CRUD de Grupos completo ✅
+- Subida de imágenes de portada ✅
+- Vista detallada con tabs ✅
+- Gestión de miembros ✅
+
+### Fase 4: Sistema de Itinerario ✅ (2025-11-14)
+- CRUD de actividades ✅
+- Categorías con emojis ✅
+- Vista agrupada por fecha ✅
+- Formulario con validación ✅
+
+### Fase 5: Sistema de Gastos ✅ (2025-11-14)
+- **Expense Tracking Completo** ✅
+  - Crear/editar/eliminar gastos
+  - 3 tipos de división (equal, percentage, custom)
+  - 7 monedas soportadas (USD, EUR, GBP, JPY, ARS, BRL, MXN)
+  - 6 categorías de gastos
+  - Cálculo automático de splits
+
+- **Balance Dashboard** ✅
+  - Cálculo de balances por miembro
+  - Algoritmo de sugerencias de pago (settlement suggestions)
+  - Vista detallada de quién debe a quién
+  - Balance del usuario destacado
+
+- **Settle Up Functionality** ✅
+  - Marcar splits individuales como pagados
+  - Estado visual de pagos (settled/pending)
+  - Botón de "Mark as Settled" por usuario
+
+- **Componentes Creados** ✅
+  - ExpenseForm - Formulario con validación en tiempo real
+  - ExpenseCard - Tarjeta expandible con detalles
+  - AddExpenseDialog - Modal para agregar gastos
+  - BalanceDashboard - Dashboard de balances y settlements
+  - SettleButton - Botón para marcar como pagado
+
+- **Páginas Creadas** ✅
+  - `/groups/[id]/expenses` - Lista de gastos con stats
+  - `/groups/[id]/expenses/balances` - Dashboard de balances
+
+## Próximos Pasos (Roadmap Fase 6)
+
+### Documentos y Fotos (Siguiente)
+1. **Gestión de Documentos** ⬅️ PRÓXIMO
+   - Subir documentos (tickets, reservas, etc.)
+   - Tipos de documentos
+   - Descargar/previsualizar
+   - Eliminar documentos
+
+2. **Galería de Fotos**
+   - Subir fotos del viaje
+   - Grid de fotos
+   - Comentarios en fotos
+   - Eliminar fotos
 
 ## Cómo Empezar a Desarrollar
 
@@ -330,22 +376,34 @@ Para preguntas o problemas:
 
 ---
 
-**Estado del Proyecto**: Dashboard Completado ✅ (2025-11-14)
+**Estado del Proyecto**: Sistema de Gastos Completado ✅ (2025-11-14)
 
-**Fase Actual**: Fase 2 - Dashboard ✅ COMPLETADO
+**Fase Actual**: Fase 5 - Sistema de Gastos ✅ COMPLETADO
 
-**Próximo Hito**: Fase 3 - CRUD de Grupos y Gestión de Miembros
+**Próximo Hito**: Fase 6 - Documentos y Fotos
 
-**Estimación**: 2-3 días de desarrollo para Fase 3
+**Estimación**: 2-3 días de desarrollo para Fase 6
 
-**Archivos Creados en esta Sesión**:
-- app/dashboard/page.tsx
-- app/dashboard/layout.tsx
-- app/dashboard/loading.tsx
-- app/dashboard/error.tsx
-- components/layout/navbar.tsx
-- components/layout/sidebar.tsx
-- components/groups/group-card.tsx
-- components/groups/group-list.tsx
-- components/groups/empty-state.tsx
-- components/groups/create-group-button.tsx
+**Archivos Creados en Fase 5 (Sistema de Gastos)**:
+- lib/validations/expense.ts - Schemas de validación
+- lib/utils/expense-calculator.ts - Calculadora de balances y settlements
+- lib/actions/expense-actions.ts - Server actions para CRUD
+- components/expenses/expense-form.tsx - Formulario completo con 3 split types
+- components/expenses/expense-card.tsx - Tarjeta expandible de gasto
+- components/expenses/add-expense-dialog.tsx - Modal para agregar
+- components/expenses/balance-dashboard.tsx - Dashboard de balances
+- components/expenses/settle-button.tsx - Botón de marcar como pagado
+- app/groups/[id]/expenses/page.tsx - Página principal de gastos
+- app/groups/[id]/expenses/balances/page.tsx - Página de balances
+
+**Funcionalidades Destacadas del Sistema de Gastos**:
+- ✅ 3 tipos de división: Equal (equitativa), Percentage (por porcentaje), Custom (montos personalizados)
+- ✅ 7 monedas: USD, EUR, GBP, JPY, ARS, BRL, MXN
+- ✅ 6 categorías: Transport, Accommodation, Food, Activity, Shopping, Other
+- ✅ Validación en tiempo real de porcentajes (deben sumar 100%)
+- ✅ Validación de montos custom (deben sumar el total)
+- ✅ Algoritmo de optimización para minimizar transacciones de pago
+- ✅ Balance en tiempo real mostrando quién debe y a quién
+- ✅ Funcionalidad de "Settle" para marcar pagos individuales
+- ✅ Estados visuales claros (Settled/Pending)
+- ✅ Dashboard separado para ver todos los balances y sugerencias de pago

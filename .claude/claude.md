@@ -26,34 +26,69 @@ TravelHub is a Next.js 14+ application that allows users to organize group trips
 ```
 travel-agency/
 ├── app/                        # Next.js App Router
-│   ├── auth/                   # Authentication pages
-│   ├── dashboard/              # ✅ IMPLEMENTED - User dashboard with group listings
+│   ├── auth/                   # ✅ Authentication pages
+│   │   ├── login/page.tsx
+│   │   └── register/page.tsx
+│   ├── dashboard/              # ✅ IMPLEMENTED - User dashboard
 │   │   ├── page.tsx            # Main dashboard page
 │   │   ├── layout.tsx          # Dashboard layout with navbar & sidebar
 │   │   ├── loading.tsx         # Loading states
-│   │   └── error.tsx           # Error handling
-│   ├── groups/[id]/            # Group pages (TO BE IMPLEMENTED)
+│   │   ├── error.tsx           # Error handling
+│   │   └── groups/new/page.tsx # Create group page
+│   ├── groups/[id]/            # ✅ IMPLEMENTED - Group pages
+│   │   ├── layout.tsx          # Group layout with tabs
+│   │   ├── page.tsx            # Group overview
+│   │   ├── members/page.tsx    # Member management
+│   │   ├── settings/page.tsx   # Group settings
+│   │   ├── itinerary/page.tsx  # Itinerary page
+│   │   ├── expenses/
+│   │   │   ├── page.tsx        # Expenses list
+│   │   │   └── balances/page.tsx # Balance dashboard
+│   │   ├── documents/page.tsx  # TO BE IMPLEMENTED
+│   │   └── photos/page.tsx     # TO BE IMPLEMENTED
 │   ├── admin/                  # Admin panel (TO BE IMPLEMENTED)
 │   ├── layout.tsx
-│   ├── page.tsx
+│   ├── page.tsx                # Landing page
 │   └── globals.css
 ├── components/
 │   ├── ui/                     # Shadcn/ui components (14 installed)
-│   ├── layout/                 # ✅ IMPLEMENTED - Layout components
+│   ├── layout/                 # ✅ Layout components
 │   │   ├── navbar.tsx          # Top navigation with user menu
 │   │   └── sidebar.tsx         # Side navigation (responsive)
-│   └── groups/                 # ✅ IMPLEMENTED - Group components
-│       ├── group-card.tsx      # Group card display
-│       ├── group-list.tsx      # Grid of group cards
-│       ├── empty-state.tsx     # No groups state
-│       └── create-group-button.tsx  # Create group CTA
+│   ├── groups/                 # ✅ Group components
+│   │   ├── group-card.tsx
+│   │   ├── group-list.tsx
+│   │   ├── group-form.tsx
+│   │   ├── add-member-dialog.tsx
+│   │   └── member-card.tsx
+│   ├── itinerary/              # ✅ Itinerary components
+│   │   ├── itinerary-form.tsx
+│   │   ├── itinerary-item-card.tsx
+│   │   └── add-itinerary-dialog.tsx
+│   └── expenses/               # ✅ Expense components
+│       ├── expense-form.tsx
+│       ├── expense-card.tsx
+│       ├── add-expense-dialog.tsx
+│       ├── balance-dashboard.tsx
+│       └── settle-button.tsx
 ├── lib/
 │   ├── supabase/               # Supabase clients
-│   │   ├── client.ts           # Browser client
-│   │   ├── server.ts           # Server client
-│   │   └── middleware.ts       # Session middleware
+│   │   ├── client.ts
+│   │   ├── server.ts
+│   │   └── middleware.ts
 │   ├── types/
-│   │   └── database.types.ts   # Complete DB types
+│   │   └── database.types.ts
+│   ├── actions/                # ✅ Server actions
+│   │   ├── group-actions.ts
+│   │   ├── member-actions.ts
+│   │   ├── itinerary-actions.ts
+│   │   └── expense-actions.ts
+│   ├── validations/            # ✅ Zod schemas
+│   │   ├── group.ts
+│   │   ├── itinerary.ts
+│   │   └── expense.ts
+│   ├── utils/
+│   │   └── expense-calculator.ts # ✅ Balance calculations
 │   └── utils.ts
 ├── hooks/                      # Custom React hooks
 ├── supabase/
@@ -126,7 +161,7 @@ travel-agency/
 
 ## Current Implementation Status
 
-### ✅ COMPLETED (Phase 1):
+### ✅ COMPLETED (Phase 1 - Infrastructure):
 - Project setup and configuration
 - Database schema and RLS policies
 - TypeScript types for all tables
@@ -157,19 +192,84 @@ travel-agency/
 - **Empty States** (implemented 2025-11-14)
   - No groups placeholder with CTA
   - Create group button
-- **Error Handling** (implemented 2025-11-14)
-  - Dashboard error boundary
-  - Loading skeletons
 
-### 🚧 TO BE IMPLEMENTED (Phase 3+):
-- Group CRUD operations (create, edit, delete)
-- Group detail pages with tabs
-- Member management (add, remove, assign roles)
-- Itinerary with drag & drop
-- Expense splitting system
-- Document and photo management
+### ✅ COMPLETED (Phase 3 - Group Management):
+- **CRUD Operations** (implemented 2025-11-14)
+  - Create group with validation (lib/actions/group-actions.ts)
+  - Edit group (only leaders/admins)
+  - Delete group (only admins)
+  - Image upload to Supabase Storage
+  - Server actions with RLS enforcement
+- **Group Pages** (implemented 2025-11-14)
+  - Group detail layout with tabs (app/groups/[id]/layout.tsx)
+  - Overview page (app/groups/[id]/page.tsx)
+  - Settings page (app/groups/[id]/settings/page.tsx)
+  - Tab navigation (Overview, Members, Itinerary, Expenses, Documents, Photos, Settings)
+- **Member Management** (implemented 2025-11-14)
+  - Add members by email (lib/actions/member-actions.ts)
+  - Remove members
+  - Assign/revoke leader role
+  - Member list with avatars and roles (app/groups/[id]/members/page.tsx)
+- **Components** (implemented 2025-11-14)
+  - GroupForm - Reusable create/edit form
+  - AddMemberDialog - Add member modal
+  - MemberCard - Member display with actions
+
+### ✅ COMPLETED (Phase 4 - Itinerary System):
+- **CRUD Operations** (implemented 2025-11-14)
+  - Create/edit/delete activities (lib/actions/itinerary-actions.ts)
+  - 5 categories with emojis (transport, accommodation, activity, food, other)
+  - Date, time, location fields
+  - Order index for sorting
+- **Itinerary Page** (implemented 2025-11-14)
+  - Date-grouped view (app/groups/[id]/itinerary/page.tsx)
+  - Activities sorted by date and order
+  - Expandable activity cards
+- **Components** (implemented 2025-11-14)
+  - ItineraryForm - Create/edit form with validation
+  - ItineraryItemCard - Activity card with actions
+  - AddItineraryDialog - Modal for adding activities
+- **Validation** (implemented 2025-11-14)
+  - Zod schemas (lib/validations/itinerary.ts)
+  - Time validation (end after start)
+  - Required fields
+
+### ✅ COMPLETED (Phase 5 - Expense System):
+- **Expense Tracking** (implemented 2025-11-14)
+  - Create/edit/delete expenses (lib/actions/expense-actions.ts)
+  - 3 split types: equal, percentage, custom
+  - 7 currencies: USD, EUR, GBP, JPY, ARS, BRL, MXN
+  - 6 categories: transport, accommodation, food, activity, shopping, other
+  - Automatic split calculation (lib/utils/expense-calculator.ts)
+- **Balance Calculations** (implemented 2025-11-14)
+  - Real-time balance calculation per member
+  - Settlement suggestions (minimize transactions)
+  - Greedy algorithm for optimal settlements
+  - Who owes whom breakdown
+- **Settle Up** (implemented 2025-11-14)
+  - Mark individual splits as settled
+  - Visual status (settled/pending)
+  - Per-user settle button
+- **Pages** (implemented 2025-11-14)
+  - Expenses list (app/groups/[id]/expenses/page.tsx)
+  - Balance dashboard (app/groups/[id]/expenses/balances/page.tsx)
+- **Components** (implemented 2025-11-14)
+  - ExpenseForm - Multi-split form with real-time validation
+  - ExpenseCard - Expandable expense card
+  - BalanceDashboard - Balance and settlement view
+  - SettleButton - Mark as settled button
+  - AddExpenseDialog - Create expense modal
+- **Validation** (implemented 2025-11-14)
+  - Zod schemas (lib/validations/expense.ts)
+  - Percentage sum validation (must equal 100%)
+  - Custom amounts validation (must equal total)
+
+### 🚧 TO BE IMPLEMENTED (Phase 6+):
+- Document management (upload, download, preview)
+- Photo gallery with comments
 - Collaborative notes
 - Admin panel
+- Drag & drop for itinerary reordering
 
 ## Development Guidelines
 
@@ -325,15 +425,124 @@ When implementing features, test:
 - `supabase/schema.sql` - Database structure
 - `supabase/rls-policies.sql` - Security policies
 
-## Next Steps (Phase 2)
+## Common Patterns Implemented
+
+### Server Actions Pattern
+All mutations follow this pattern (see lib/actions/):
+```typescript
+'use server'
+import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+
+export async function createItem(data: ItemInput) {
+  const supabase = await createClient()
+
+  // 1. Get and verify user
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: 'Unauthorized' }
+
+  // 2. Validate input with Zod
+  const validation = schema.safeParse(data)
+  if (!validation.success) {
+    return { error: validation.error.issues[0].message }
+  }
+
+  // 3. Check permissions (RLS + manual check)
+  const membership = await checkGroupMembership(user.id, data.group_id)
+  if (!membership) return { error: 'Not authorized' }
+
+  // 4. Perform database operation
+  const { data: item, error } = await supabase
+    .from('table')
+    .insert(data)
+    .select()
+    .single()
+
+  if (error) return { error: 'Failed to create' }
+
+  // 5. Revalidate and return
+  revalidatePath('/path')
+  return { success: true, data: item }
+}
+```
+
+### Form Component Pattern
+All forms follow this pattern (see components/):
+```typescript
+'use client'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
+
+export default function ItemForm({ mode, defaultValues, onSuccess }) {
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues,
+  })
+
+  async function onSubmit(data) {
+    setIsSubmitting(true)
+    const result = await createItem(data)
+
+    if (result?.error) {
+      toast.error(result.error)
+      setIsSubmitting(false)
+      return
+    }
+
+    toast.success('Success!')
+    router.refresh()
+    onSuccess?()
+    setIsSubmitting(false)
+  }
+
+  return <Form {...form}>...</Form>
+}
+```
+
+### Page with Data Fetching Pattern
+Server components fetch data directly (see app/groups/[id]/):
+```typescript
+import { createClient } from '@/lib/supabase/server'
+import { redirect, notFound } from 'next/navigation'
+
+export default async function Page({ params }) {
+  const supabase = await createClient()
+  const { id } = await params // Next.js 15+ requires await
+
+  // Check auth
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/login')
+
+  // Check membership (RLS will also enforce)
+  const { data: membership } = await supabase
+    .from('group_members')
+    .select('role')
+    .eq('group_id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!membership) notFound()
+
+  // Fetch data with RLS
+  const { data: items } = await supabase
+    .from('table')
+    .select('*')
+    .eq('group_id', id)
+
+  return <div>...</div>
+}
+```
+
+## Next Steps (Phase 6)
 
 Immediate priorities:
-1. Create dashboard layout with sidebar/navbar
-2. Implement group CRUD operations
-3. Add member management
-4. Create group detail pages with tabs
+1. Document management (upload, download, preview)
+2. Photo gallery with grid view
+3. Photo comments functionality
+4. Collaborative notes system
 
-Refer to `ROADMAP.md` for complete feature list and priorities.
+Refer to `ROADMAP.md` and `RESUMEN.md` for complete feature list and current status.
 
 ---
 
