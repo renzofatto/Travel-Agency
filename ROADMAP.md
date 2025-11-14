@@ -13,17 +13,28 @@
 - [x] Landing page con features principales
 - [x] Documentación de configuración
 
-## Fase 2: Dashboard y Gestión de Grupos (PRÓXIMO)
+## Fase 2: Dashboard y Gestión de Grupos ✅ PARCIALMENTE COMPLETADO
 
-### Dashboard del Usuario
-- [ ] Layout principal con navegación
-- [ ] Página de dashboard
-  - [ ] Lista de grupos del usuario
-  - [ ] Resumen de próximos viajes
-  - [ ] Estadísticas rápidas
-  - [ ] Acciones rápidas (crear grupo, etc.)
+### Dashboard del Usuario ✅ COMPLETADO (2025-11-14)
+- [x] Layout principal con navegación
+  - [x] Navbar superior con menú de usuario
+  - [x] Sidebar responsive con navegación
+  - [x] Layout reutilizable para todas las páginas del dashboard
+- [x] Página de dashboard
+  - [x] Lista de grupos del usuario (con RLS)
+  - [x] Resumen de próximos viajes
+  - [x] Estadísticas rápidas (total, upcoming, active)
+  - [x] Acciones rápidas (crear grupo)
+  - [x] Tabs para filtrar (all, upcoming, active, past)
+- [x] Componentes Reutilizables
+  - [x] Navbar con menú de usuario y avatar
+  - [x] Sidebar de navegación responsive
+  - [x] Cards de grupos con badges de estado y rol
+  - [x] Empty state para cuando no hay grupos
+  - [x] Loading states y skeletons
+  - [x] Error boundary
 
-### Gestión de Grupos
+### Gestión de Grupos (PRÓXIMO)
 - [ ] Crear nuevo grupo de viaje
   - [ ] Formulario con validación (React Hook Form + Zod)
   - [ ] Subida de imagen de portada
@@ -39,14 +50,6 @@
   - [ ] Asignar/revocar rol de líder
   - [ ] Remover miembros
   - [ ] Avatar y nombre de cada miembro
-
-### Componentes Reutilizables
-- [ ] Navbar con menú de usuario
-- [ ] Sidebar de navegación
-- [ ] Cards de grupos
-- [ ] Componente de avatar
-- [ ] Breadcrumbs
-- [ ] Loading states y skeletons
 
 ## Fase 3: Cronograma/Itinerario
 
