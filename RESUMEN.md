@@ -1,6 +1,6 @@
 # Resumen del Proyecto TravelHub
 
-## Estado Actual: Sistema de Gastos Implementado ✅ (Actualizado: 2025-11-14)
+## Estado Actual: Sistema de Documentos y Fotos Implementado ✅ (Actualizado: 2025-11-14)
 
 ### Lo que se ha implementado:
 
@@ -198,20 +198,67 @@ travel-agency/
   - `/groups/[id]/expenses` - Lista de gastos con stats
   - `/groups/[id]/expenses/balances` - Dashboard de balances
 
-## Próximos Pasos (Roadmap Fase 6)
+### Fase 6: Sistema de Documentos y Fotos ✅ (2025-11-14)
+- **Gestión de Documentos Completa** ✅
+  - Upload de documentos (PDF, imágenes, Word)
+  - 6 tipos de documentos (flight, bus, train, hotel, activity, other)
+  - Validación de archivos (tipo y tamaño 10MB)
+  - Download de documentos
+  - Delete (solo owner/admin)
+  - Agrupación por tipo de documento
+  - Stats dashboard (total, categorías, storage usado)
 
-### Documentos y Fotos (Siguiente)
-1. **Gestión de Documentos** ⬅️ PRÓXIMO
-   - Subir documentos (tickets, reservas, etc.)
-   - Tipos de documentos
-   - Descargar/previsualizar
-   - Eliminar documentos
+- **Galería de Fotos Completa** ✅
+  - Upload múltiple de fotos con preview
+  - Validación de imágenes (JPG, PNG, WEBP, 10MB)
+  - Caption opcional para todas las fotos
+  - Grid responsive (2-4 columnas)
+  - Lightbox modal con navegación (teclado y flechas)
+  - Delete de fotos (owner/admin)
+  - Stats dashboard (total fotos, comentarios, contribuidores)
 
-2. **Galería de Fotos**
-   - Subir fotos del viaje
-   - Grid de fotos
-   - Comentarios en fotos
-   - Eliminar fotos
+- **Sistema de Comentarios** ✅
+  - Agregar comentarios en fotos
+  - Delete comentarios (owner/admin)
+  - Timestamps relativos (ej: "2h ago")
+  - Contador de comentarios en tiempo real
+
+- **Componentes Creados** ✅
+  - UploadDocumentDialog - Upload de documentos
+  - DocumentCard - Card de documento con acciones
+  - UploadPhotosDialog - Upload múltiple con preview
+  - PhotoGrid - Grilla responsive de fotos
+  - PhotoModal - Lightbox con navegación
+  - PhotoComments - Lista y formulario de comentarios
+
+- **Páginas Creadas** ✅
+  - `/groups/[id]/documents` - Gestión de documentos
+  - `/groups/[id]/photos` - Galería de fotos
+
+- **Storage Configuration** ✅
+  - Supabase Storage buckets configurados
+  - RLS policies para storage
+  - Permisos de owner y admin
+
+## Próximos Pasos (Roadmap Fase 7)
+
+### Notas Colaborativas y Mejoras (Siguiente)
+1. **Notas Colaborativas** ⬅️ PRÓXIMO
+   - Editor de texto enriquecido
+   - Múltiples notas por grupo
+   - Historial de ediciones
+   - Quién editó último
+
+2. **Panel de Administración**
+   - Gestión de usuarios
+   - Ver todos los grupos
+   - Estadísticas globales
+   - Logs de actividad
+
+3. **Mejoras de UX**
+   - Drag & drop para itinerario
+   - Notificaciones en tiempo real
+   - Invitaciones por email
 
 ## Cómo Empezar a Desarrollar
 
@@ -376,34 +423,39 @@ Para preguntas o problemas:
 
 ---
 
-**Estado del Proyecto**: Sistema de Gastos Completado ✅ (2025-11-14)
+**Estado del Proyecto**: Sistema de Documentos y Fotos Completado ✅ (2025-11-14)
 
-**Fase Actual**: Fase 5 - Sistema de Gastos ✅ COMPLETADO
+**Fase Actual**: Fase 6 - Documentos y Fotos ✅ COMPLETADO
 
-**Próximo Hito**: Fase 6 - Documentos y Fotos
+**Próximo Hito**: Fase 7 - Notas Colaborativas y Admin Panel
 
-**Estimación**: 2-3 días de desarrollo para Fase 6
+**Estimación**: 2-3 días de desarrollo para Fase 7
 
-**Archivos Creados en Fase 5 (Sistema de Gastos)**:
-- lib/validations/expense.ts - Schemas de validación
-- lib/utils/expense-calculator.ts - Calculadora de balances y settlements
-- lib/actions/expense-actions.ts - Server actions para CRUD
-- components/expenses/expense-form.tsx - Formulario completo con 3 split types
-- components/expenses/expense-card.tsx - Tarjeta expandible de gasto
-- components/expenses/add-expense-dialog.tsx - Modal para agregar
-- components/expenses/balance-dashboard.tsx - Dashboard de balances
-- components/expenses/settle-button.tsx - Botón de marcar como pagado
-- app/groups/[id]/expenses/page.tsx - Página principal de gastos
-- app/groups/[id]/expenses/balances/page.tsx - Página de balances
+**Archivos Creados en Fase 6 (Documentos y Fotos)**:
+- supabase/storage-setup.sql - Configuración de Storage buckets y RLS policies
+- lib/validations/document.ts - Schemas de validación para documentos
+- lib/validations/photo.ts - Schemas de validación para fotos y comentarios
+- lib/actions/document-actions.ts - Server actions para documentos (upload, delete)
+- lib/actions/photo-actions.ts - Server actions para fotos y comentarios
+- components/documents/upload-document-dialog.tsx - Modal de upload de documentos
+- components/documents/document-card.tsx - Card de documento con acciones
+- components/photos/upload-photos-dialog.tsx - Modal de upload múltiple con preview
+- components/photos/photo-grid.tsx - Grilla responsive de fotos con hover
+- components/photos/photo-modal.tsx - Lightbox con navegación y sidebar
+- components/photos/photo-comments.tsx - Sistema de comentarios completo
+- app/groups/[id]/documents/page.tsx - Página de documentos con stats
+- app/groups/[id]/photos/page.tsx - Página de galería de fotos con stats
 
-**Funcionalidades Destacadas del Sistema de Gastos**:
-- ✅ 3 tipos de división: Equal (equitativa), Percentage (por porcentaje), Custom (montos personalizados)
-- ✅ 7 monedas: USD, EUR, GBP, JPY, ARS, BRL, MXN
-- ✅ 6 categorías: Transport, Accommodation, Food, Activity, Shopping, Other
-- ✅ Validación en tiempo real de porcentajes (deben sumar 100%)
-- ✅ Validación de montos custom (deben sumar el total)
-- ✅ Algoritmo de optimización para minimizar transacciones de pago
-- ✅ Balance en tiempo real mostrando quién debe y a quién
-- ✅ Funcionalidad de "Settle" para marcar pagos individuales
-- ✅ Estados visuales claros (Settled/Pending)
-- ✅ Dashboard separado para ver todos los balances y sugerencias de pago
+**Funcionalidades Destacadas del Sistema de Documentos y Fotos**:
+- ✅ Upload de documentos con 6 tipos categorizados
+- ✅ Upload múltiple de fotos con preview antes de subir
+- ✅ Validación client-side y server-side de archivos (tipo y tamaño)
+- ✅ Lightbox modal con navegación por teclado (flechas, ESC)
+- ✅ Sistema de comentarios en fotos con timestamps relativos
+- ✅ Permisos de delete basados en ownership y rol de admin
+- ✅ Supabase Storage con RLS policies configuradas
+- ✅ Stats dashboards para ambas funcionalidades
+- ✅ Agrupación de documentos por tipo
+- ✅ Grid responsive de fotos (2-4 columnas según tamaño de pantalla)
+- ✅ Overlay con información al hacer hover en fotos
+- ✅ Rollback automático si falla el guardado en DB después del upload

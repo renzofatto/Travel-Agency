@@ -44,8 +44,8 @@ travel-agency/
 │   │   ├── expenses/
 │   │   │   ├── page.tsx        # Expenses list
 │   │   │   └── balances/page.tsx # Balance dashboard
-│   │   ├── documents/page.tsx  # TO BE IMPLEMENTED
-│   │   └── photos/page.tsx     # TO BE IMPLEMENTED
+│   │   ├── documents/page.tsx  # ✅ IMPLEMENTED - Documents page
+│   │   └── photos/page.tsx     # ✅ IMPLEMENTED - Photos page
 │   ├── admin/                  # Admin panel (TO BE IMPLEMENTED)
 │   ├── layout.tsx
 │   ├── page.tsx                # Landing page
@@ -65,12 +65,20 @@ travel-agency/
 │   │   ├── itinerary-form.tsx
 │   │   ├── itinerary-item-card.tsx
 │   │   └── add-itinerary-dialog.tsx
-│   └── expenses/               # ✅ Expense components
-│       ├── expense-form.tsx
-│       ├── expense-card.tsx
-│       ├── add-expense-dialog.tsx
-│       ├── balance-dashboard.tsx
-│       └── settle-button.tsx
+│   ├── expenses/               # ✅ Expense components
+│   │   ├── expense-form.tsx
+│   │   ├── expense-card.tsx
+│   │   ├── add-expense-dialog.tsx
+│   │   ├── balance-dashboard.tsx
+│   │   └── settle-button.tsx
+│   ├── documents/              # ✅ Document components
+│   │   ├── upload-document-dialog.tsx
+│   │   └── document-card.tsx
+│   └── photos/                 # ✅ Photo components
+│       ├── upload-photos-dialog.tsx
+│       ├── photo-grid.tsx
+│       ├── photo-modal.tsx
+│       └── photo-comments.tsx
 ├── lib/
 │   ├── supabase/               # Supabase clients
 │   │   ├── client.ts
@@ -82,11 +90,15 @@ travel-agency/
 │   │   ├── group-actions.ts
 │   │   ├── member-actions.ts
 │   │   ├── itinerary-actions.ts
-│   │   └── expense-actions.ts
+│   │   ├── expense-actions.ts
+│   │   ├── document-actions.ts
+│   │   └── photo-actions.ts
 │   ├── validations/            # ✅ Zod schemas
 │   │   ├── group.ts
 │   │   ├── itinerary.ts
-│   │   └── expense.ts
+│   │   ├── expense.ts
+│   │   ├── document.ts
+│   │   └── photo.ts
 │   ├── utils/
 │   │   └── expense-calculator.ts # ✅ Balance calculations
 │   └── utils.ts
@@ -264,12 +276,53 @@ travel-agency/
   - Percentage sum validation (must equal 100%)
   - Custom amounts validation (must equal total)
 
-### 🚧 TO BE IMPLEMENTED (Phase 6+):
-- Document management (upload, download, preview)
-- Photo gallery with comments
+### ✅ COMPLETED (Phase 6 - Documents & Photos):
+- **Document Management** (implemented 2025-11-14)
+  - Upload documents (PDF, images, Word) (lib/actions/document-actions.ts)
+  - 6 document types: flight, bus, train, hotel, activity, other
+  - File validation (type and size 10MB max)
+  - Download documents
+  - Delete documents (owner/admin only)
+  - Group by document type
+  - Stats dashboard (total, categories, storage used)
+- **Photo Gallery** (implemented 2025-11-14)
+  - Multi-photo upload with preview (lib/actions/photo-actions.ts)
+  - Image validation (JPG, PNG, WEBP, 10MB max)
+  - Optional caption for photos
+  - Responsive grid layout (2-4 columns)
+  - Lightbox modal with navigation (keyboard & arrows)
+  - Delete photos (owner/admin only)
+  - Stats dashboard (total photos, comments, contributors)
+- **Photo Comments** (implemented 2025-11-14)
+  - Add comments on photos
+  - Delete comments (owner/admin only)
+  - Relative timestamps (e.g., "2h ago")
+  - Real-time comment count
+- **Pages** (implemented 2025-11-14)
+  - Documents page (app/groups/[id]/documents/page.tsx)
+  - Photos page (app/groups/[id]/photos/page.tsx)
+- **Components** (implemented 2025-11-14)
+  - UploadDocumentDialog - Single file upload modal
+  - DocumentCard - Document display with actions
+  - UploadPhotosDialog - Multi-file upload with preview
+  - PhotoGrid - Responsive photo grid with hover overlay
+  - PhotoModal - Lightbox with navigation and info sidebar
+  - PhotoComments - Comment list and form
+- **Storage** (implemented 2025-11-14)
+  - Supabase Storage buckets: 'travel-documents' (private), 'photos' (public)
+  - RLS policies for storage (supabase/storage-setup.sql)
+  - Owner and admin deletion permissions
+- **Validation** (implemented 2025-11-14)
+  - Zod schemas (lib/validations/document.ts, lib/validations/photo.ts)
+  - Client-side and server-side validation
+  - File type and size validation
+
+### 🚧 TO BE IMPLEMENTED (Phase 7+):
 - Collaborative notes
 - Admin panel
 - Drag & drop for itinerary reordering
+- Notifications system
+- Email invitations
 
 ## Development Guidelines
 
@@ -378,11 +431,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ## Supabase Storage Buckets
 
-To be created:
+✅ **Configured** (via supabase/storage-setup.sql):
+- `travel-documents` (private) - Trip documents with RLS policies
+- `photos` (public) - Trip photos with RLS policies
+
+**To be created:**
 - `avatars` (public) - User avatars
 - `group-covers` (public) - Group cover images
-- `photos` (public) - Trip photos
-- `travel-documents` (private) - Trip documents
 - `receipts` (private) - Expense receipts
 
 ## Installed Shadcn/ui Components
@@ -534,13 +589,96 @@ export default async function Page({ params }) {
 }
 ```
 
-## Next Steps (Phase 6)
+### File Upload Pattern (Implemented)
+Documents and photos use Supabase Storage (see lib/actions/document-actions.ts, photo-actions.ts):
+```typescript
+'use server'
+export async function uploadFile(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  // 1. Extract and validate file
+  const file = formData.get('file') as File
+  if (file.size > 10 * 1024 * 1024) {
+    return { error: 'File too large' }
+  }
+
+  // 2. Generate unique filename
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${user.id}/${groupId}/${Date.now()}.${fileExt}`
+
+  // 3. Upload to storage
+  const { error: uploadError } = await supabase.storage
+    .from('bucket-name')
+    .upload(fileName, file, { cacheControl: '3600', upsert: false })
+
+  if (uploadError) return { error: 'Upload failed' }
+
+  // 4. Get public URL
+  const { data: { publicUrl } } = supabase.storage
+    .from('bucket-name')
+    .getPublicUrl(fileName)
+
+  // 5. Save record to database
+  const { data, error } = await supabase
+    .from('table')
+    .insert({ file_url: publicUrl, ...otherData })
+    .select()
+    .single()
+
+  if (error) {
+    // Rollback: delete uploaded file
+    await supabase.storage.from('bucket-name').remove([fileName])
+    return { error: 'Database error' }
+  }
+
+  revalidatePath('/path')
+  return { success: true, data }
+}
+```
+
+### Multi-file Upload Pattern (Implemented)
+Photos support multiple uploads (see lib/actions/photo-actions.ts):
+```typescript
+export async function uploadPhotos(formData: FormData) {
+  const files = formData.getAll('files') as File[]
+  const uploadedPhotos = []
+  const errors = []
+
+  for (const file of files) {
+    // Validate each file
+    if (file.size > 10 * 1024 * 1024) {
+      errors.push(`${file.name}: File too large`)
+      continue
+    }
+
+    // Upload and save each file
+    // ... (same pattern as single upload)
+
+    uploadedPhotos.push(photo)
+  }
+
+  if (uploadedPhotos.length === 0) {
+    return { error: errors.join(', ') }
+  }
+
+  return {
+    success: true,
+    data: uploadedPhotos,
+    partialErrors: errors.length > 0 ? errors : undefined
+  }
+}
+```
+
+## Next Steps (Phase 7)
 
 Immediate priorities:
-1. Document management (upload, download, preview)
-2. Photo gallery with grid view
-3. Photo comments functionality
-4. Collaborative notes system
+1. Collaborative notes system
+2. Admin panel for user management
+3. Drag & drop for itinerary reordering
+4. Notifications system
+5. Email invitations for members
 
 Refer to `ROADMAP.md` and `RESUMEN.md` for complete feature list and current status.
 
