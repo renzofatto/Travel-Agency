@@ -117,16 +117,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
 
 ### 4. Configurar Supabase
 
-**Opción rápida**: Sigue la guía [docs/QUICK_START.md](docs/QUICK_START.md) (5 minutos)
+**¡Solo 2 archivos SQL!** 🚀
 
-**Opción detallada**: Sigue la guía [docs/SETUP_SUPABASE.md](docs/SETUP_SUPABASE.md)
-
-**Pasos básicos:**
 1. Crea un proyecto en [Supabase](https://supabase.com)
-2. Ejecuta el schema: `supabase/schema.sql`
-3. Ejecuta las políticas RLS: `supabase/rls-policies.sql`
-4. Ejecuta las migraciones en `supabase/migrations/`
-5. Configura Storage: `supabase/storage/`
+2. Ejecuta `supabase/schema.sql` en SQL Editor (crea TODO: 15 tablas, índices, RLS)
+3. Ejecuta `supabase/storage-buckets.sql` en SQL Editor (crea 7 buckets con permisos)
+
+**Guías detalladas:**
+- [Quick Start](docs/QUICK_START.md) - Setup en 5 minutos
+- [Database Setup](docs/DATABASE_SETUP.md) - Guía completa de base de datos
 
 ### 5. Ejecutar el proyecto
 
@@ -192,16 +191,9 @@ travel-agency/
 │   └── utils/
 │       └── expense-calculator.ts   # Cálculo de balances
 ├── supabase/
-│   ├── schema.sql                 # Schema completo de la DB
-│   ├── rls-policies.sql           # Políticas de seguridad
-│   ├── migrations/                # Migraciones
-│   │   ├── add_coordinates_to_itinerary.sql
-│   │   ├── add_image_to_itinerary_items.sql
-│   │   ├── add_package_includes_excludes.sql
-│   │   └── ...
-│   └── storage/                   # Setup de Storage buckets
-│       ├── itinerary-images-bucket.sql
-│       └── storage-setup.sql
+│   ├── schema.sql                 # 🎯 Schema completo (TODO en 1 archivo)
+│   ├── storage-buckets.sql        # 🎯 Storage completo (7 buckets + RLS)
+│   └── migrations-backup/         # Migraciones históricas (solo referencia)
 ├── docs/                          # Documentación
 │   ├── QUICK_START.md             # Guía de inicio rápido
 │   ├── SETUP_SUPABASE.md          # Setup detallado de Supabase

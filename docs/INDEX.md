@@ -22,14 +22,15 @@ Guía detallada para configurar Supabase desde cero:
 - RLS policies
 - Migraciones
 
-### [Migration Checklist](MIGRATION_CHECKLIST.md) ✔️
-**Lista de verificación de migraciones**
+### [Database Setup](DATABASE_SETUP.md) 🗄️
+**Configuración de Base de Datos Simplificada**
 
-Checklist paso a paso para ejecutar todas las migraciones:
-- Orden correcto de ejecución
-- Verificaciones después de cada paso
-- Troubleshooting común
-- Scripts SQL de verificación
+Guía completa y actualizada para configurar la base de datos:
+- Solo 2 archivos SQL para ejecutar
+- Verificación paso a paso
+- Estructura completa de la DB
+- Troubleshooting
+- **REEMPLAZA**: Setup Supabase y Migration Checklist (obsoletos)
 
 ## 📋 Estado del Proyecto
 
