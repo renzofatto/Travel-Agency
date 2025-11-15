@@ -34,7 +34,7 @@ interface PackageWithItinerary {
   duration_days: number
   cover_image: string | null
   price_estimate: number | null
-  difficulty_level: string | null
+  category: string | null
   package_itinerary_items: Array<{
     id: string
     title: string
@@ -49,14 +49,20 @@ interface PackagesSectionProps {
   packages: PackageWithItinerary[]
 }
 
-const difficultyLabels = {
-  easy: { label: 'Fácil', color: 'bg-green-100 text-green-700' },
-  moderate: { label: 'Moderado', color: 'bg-orange-100 text-orange-700' },
-  challenging: { label: 'Desafiante', color: 'bg-red-100 text-red-700' },
+const categoryLabels = {
+  adventure: { label: 'Aventura', color: 'bg-orange-100 text-orange-700', emoji: '🏔️' },
+  culture: { label: 'Cultura', color: 'bg-purple-100 text-purple-700', emoji: '🏛️' },
+  luxury: { label: 'Lujo', color: 'bg-yellow-100 text-yellow-700', emoji: '💎' },
+  relaxation: { label: 'Relax', color: 'bg-blue-100 text-blue-700', emoji: '🧘' },
+  nature: { label: 'Naturaleza', color: 'bg-green-100 text-green-700', emoji: '🌿' },
+  beach: { label: 'Playa', color: 'bg-cyan-100 text-cyan-700', emoji: '🏖️' },
+  city: { label: 'Ciudad', color: 'bg-gray-100 text-gray-700', emoji: '🏙️' },
+  family: { label: 'Familia', color: 'bg-pink-100 text-pink-700', emoji: '👨‍👩‍👧‍👦' },
 }
 
 export default function PackagesSection({ packages }: PackagesSectionProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   const filteredPackages = packages.filter((pkg) => {
     const matchesSearch =
@@ -64,7 +70,9 @@ export default function PackagesSection({ packages }: PackagesSectionProps) {
       pkg.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (pkg.description && pkg.description.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    return matchesSearch
+    const matchesCategory = selectedCategory === 'all' || pkg.category === selectedCategory
+
+    return matchesSearch && matchesCategory
   })
 
   return (
@@ -99,6 +107,24 @@ export default function PackagesSection({ packages }: PackagesSectionProps) {
             />
           </div>
         </div>
+        <div className="w-full md:w-[250px]">
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="Categoría" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las categorías</SelectItem>
+              <SelectItem value="adventure">🏔️ Aventura</SelectItem>
+              <SelectItem value="culture">🏛️ Cultura</SelectItem>
+              <SelectItem value="luxury">💎 Lujo</SelectItem>
+              <SelectItem value="relaxation">🧘 Relax</SelectItem>
+              <SelectItem value="nature">🌿 Naturaleza</SelectItem>
+              <SelectItem value="beach">🏖️ Playa</SelectItem>
+              <SelectItem value="city">🏙️ Ciudad</SelectItem>
+              <SelectItem value="family">👨‍👩‍👧‍👦 Familia</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Results Count */}
@@ -110,9 +136,9 @@ export default function PackagesSection({ packages }: PackagesSectionProps) {
       {/* Packages Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPackages.map((pkg) => {
-          // Get difficulty badge (if available)
-          const difficultyInfo = pkg.difficulty_level
-            ? difficultyLabels[pkg.difficulty_level as keyof typeof difficultyLabels]
+          // Get category badge (if available)
+          const categoryInfo = pkg.category
+            ? categoryLabels[pkg.category as keyof typeof categoryLabels]
             : null
 
           // Get highlights from itinerary items that should be shown on landing
@@ -124,12 +150,10 @@ export default function PackagesSection({ packages }: PackagesSectionProps) {
           const coverImage = pkg.cover_image || '/images/default-package.jpg'
 
           return (
-            <Card
-              key={pkg.id}
-              className="hover:shadow-2xl transition-all group cursor-pointer overflow-hidden border-0"
-            >
-              {/* Image Header */}
-              <div className="relative h-64 overflow-hidden">
+            <Link key={pkg.id} href={`/paquetes/${pkg.id}`} className="block">
+              <Card className="hover:shadow-2xl transition-all group cursor-pointer overflow-hidden border-0 h-full">
+                {/* Image Header */}
+                <div className="relative h-64 overflow-hidden">
                 <Image
                   src={coverImage}
                   alt={pkg.name}
@@ -140,11 +164,11 @@ export default function PackagesSection({ packages }: PackagesSectionProps) {
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-                {/* Badges on Image */}
-                {difficultyInfo && (
+                {/* Category Badge on Image */}
+                {categoryInfo && (
                   <div className="absolute top-4 right-4 flex flex-col gap-2">
-                    <Badge className={`${difficultyInfo.color} shadow-lg`}>
-                      {difficultyInfo.label}
+                    <Badge className={`${categoryInfo.color} shadow-lg font-medium`}>
+                      {categoryInfo.emoji} {categoryInfo.label}
                     </Badge>
                   </div>
                 )}
@@ -207,15 +231,14 @@ export default function PackagesSection({ packages }: PackagesSectionProps) {
                       </p>
                       <p className="text-xs text-gray-500">precio estimado</p>
                     </div>
-                    <Link href={`/paquetes/${pkg.id}`}>
-                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                        Ver más
-                      </Button>
-                    </Link>
+                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                      Ver más
+                    </Button>
                   </div>
                 )}
               </CardContent>
             </Card>
+          </Link>
           )
         })}
       </div>

@@ -1,9 +1,18 @@
 import { z } from 'zod'
 
-// Difficulty levels for packages
-export const difficultyLevelEnum = z.enum(['easy', 'moderate', 'challenging'])
+// Package categories
+export const packageCategoryEnum = z.enum([
+  'adventure',
+  'culture',
+  'luxury',
+  'relaxation',
+  'nature',
+  'beach',
+  'city',
+  'family'
+])
 
-export type DifficultyLevel = z.infer<typeof difficultyLevelEnum>
+export type PackageCategory = z.infer<typeof packageCategoryEnum>
 
 // Category for package itinerary items (same as regular itinerary)
 export const packageItemCategoryEnum = z.enum([
@@ -92,7 +101,7 @@ export const createPackageSchema = z.object({
   duration_days: z.number().int().min(1, 'Duration must be at least 1 day').max(365, 'Duration must be less than 365 days'),
   cover_image: z.string().url().optional().or(z.literal('')),
   price_estimate: z.number().min(0, 'Price must be positive').optional(),
-  difficulty_level: difficultyLevelEnum.optional(),
+  category: packageCategoryEnum.optional(),
   is_active: z.boolean().optional().default(true),
   is_featured: z.boolean().optional().default(false), // NEW: Show on landing page
 })

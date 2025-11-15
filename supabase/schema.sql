@@ -58,7 +58,7 @@ CREATE TABLE public.travel_packages (
   duration_days INTEGER NOT NULL CHECK (duration_days > 0),
   cover_image TEXT,
   price_estimate DECIMAL(10, 2),
-  difficulty_level VARCHAR(50) CHECK (difficulty_level IN ('easy', 'moderate', 'challenging')),
+  category VARCHAR(50) CHECK (category IN ('adventure', 'culture', 'luxury', 'relaxation', 'nature', 'beach', 'city', 'family')),
   created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -70,6 +70,7 @@ COMMENT ON TABLE public.travel_packages IS 'Master travel packages created by ad
 COMMENT ON COLUMN public.travel_packages.is_featured IS 'Whether this package should be displayed on the landing page';
 COMMENT ON COLUMN public.travel_packages.is_active IS 'Active packages can be viewed and assigned; inactive are archived';
 COMMENT ON COLUMN public.travel_packages.price_estimate IS 'Estimated total price for the package';
+COMMENT ON COLUMN public.travel_packages.category IS 'Package category: adventure, culture, luxury, relaxation, nature, beach, city, family';
 
 -- ============================================
 -- TABLE: package_itinerary_items

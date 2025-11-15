@@ -48,7 +48,7 @@ export default function PackageForm({ mode, defaultValues, onSuccess }: PackageF
       duration_days: defaultValues?.duration_days || 1,
       cover_image: defaultValues?.cover_image || '',
       price_estimate: defaultValues?.price_estimate || undefined,
-      difficulty_level: defaultValues?.difficulty_level || undefined,
+      category: defaultValues?.category || undefined,
       is_active: defaultValues?.is_active !== undefined ? defaultValues.is_active : true,
       is_featured: defaultValues?.is_featured !== undefined ? defaultValues.is_featured : false,
     },
@@ -186,27 +186,32 @@ export default function PackageForm({ mode, defaultValues, onSuccess }: PackageF
             )}
           />
 
-          {/* Difficulty Level */}
+          {/* Category */}
           <FormField
             control={form.control}
-            name="difficulty_level"
+            name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Difficulty Level</FormLabel>
+                <FormLabel>Category</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value || undefined}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select difficulty" />
+                      <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="moderate">Moderate</SelectItem>
-                    <SelectItem value="challenging">Challenging</SelectItem>
+                    <SelectItem value="adventure">🏔️ Adventure</SelectItem>
+                    <SelectItem value="culture">🏛️ Culture</SelectItem>
+                    <SelectItem value="luxury">💎 Luxury</SelectItem>
+                    <SelectItem value="relaxation">🧘 Relaxation</SelectItem>
+                    <SelectItem value="nature">🌿 Nature</SelectItem>
+                    <SelectItem value="beach">🏖️ Beach</SelectItem>
+                    <SelectItem value="city">🏙️ City</SelectItem>
+                    <SelectItem value="family">👨‍👩‍👧‍👦 Family</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Physical difficulty level (optional)
+                  Package category for filtering (optional)
                 </FormDescription>
                 <FormMessage />
               </FormItem>
