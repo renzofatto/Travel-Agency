@@ -78,9 +78,9 @@ export async function createPackage(data: CreatePackageInput) {
       duration_days: data.duration_days,
       cover_image: data.cover_image || null,
       price_estimate: data.price_estimate || null,
-      difficulty_level: data.difficulty_level || null,
+      category: data.category || null,
       is_active: data.is_active,
-      is_featured: data.is_featured || false, // NEW
+      is_featured: data.is_featured || false,
       created_by: user!.id,
     })
     .select()
@@ -117,9 +117,9 @@ export async function updatePackage(data: EditPackageInput) {
       duration_days: data.duration_days,
       cover_image: data.cover_image || null,
       price_estimate: data.price_estimate || null,
-      difficulty_level: data.difficulty_level || null,
+      category: data.category || null,
       is_active: data.is_active,
-      is_featured: data.is_featured || false, // NEW
+      is_featured: data.is_featured || false,
     })
     .eq('id', data.id)
 
