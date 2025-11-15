@@ -11,6 +11,7 @@ export interface TravelPackage {
   currency: string
   rating: number
   image: string
+  coverImage: string  // Main hero image URL
   highlights: string[]
   popular?: boolean
   description: string
@@ -22,7 +23,7 @@ export interface TravelPackage {
     description: string
     activities: string[]
   }[]
-  gallery: string[]
+  gallery: string[]  // Array of image URLs
 }
 
 export const packages: TravelPackage[] = [
@@ -39,6 +40,7 @@ export const packages: TravelPackage[] = [
     currency: 'USD',
     rating: 4.9,
     image: '🏰',
+    coverImage: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80',  // Paris cityscape
     highlights: ['París', 'Roma', 'Barcelona', 'Ámsterdam'],
     popular: true,
     description: 'Recorre las ciudades más icónicas de Europa en un viaje inolvidable. Descubre la Torre Eiffel, el Coliseo, la Sagrada Familia y los canales de Ámsterdam. Arte, historia y cultura en estado puro.',
@@ -88,7 +90,14 @@ export const packages: TravelPackage[] = [
         activities: ['Sagrada Familia', 'Parque Güell', 'Casa Batlló'],
       },
     ],
-    gallery: ['🏰', '🗼', '🎨', '⛪', '🌉', '🏛️'],
+    gallery: [
+      'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&q=80',  // Eiffel Tower
+      'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80',  // Rome Colosseum
+      'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800&q=80',  // Sagrada Familia
+      'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=800&q=80',  // Amsterdam canals
+      'https://images.unsplash.com/photo-1549144511-f099e773c147?w=800&q=80',  // Louvre
+      'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?w=800&q=80',  // Versailles
+    ],
   },
   {
     id: '2',
@@ -103,6 +112,7 @@ export const packages: TravelPackage[] = [
     currency: 'USD',
     rating: 4.8,
     image: '🏖️',
+    coverImage: 'https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?w=1200&q=80',  // Caribbean beach
     highlights: ['Cancún', 'Punta Cana', 'Playas privadas', 'All inclusive'],
     popular: true,
     description: 'Relájate en las mejores playas del Caribe con todo incluido. Arena blanca, aguas turquesas y resort 5 estrellas con comida y bebida ilimitada. El paraíso te espera.',
@@ -140,7 +150,14 @@ export const packages: TravelPackage[] = [
         activities: ['Ferry a Isla Mujeres', 'Snorkel en arrecifes', 'Almuerzo en la playa'],
       },
     ],
-    gallery: ['🏖️', '🌴', '🐠', '🌊', '🍹', '⛱️'],
+    gallery: [
+      'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800&q=80',  // Beach resort
+      'https://images.unsplash.com/photo-1551244072-5d12893278ab?w=800&q=80',  // Tropical beach
+      'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',  // Underwater snorkeling
+      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',  // Pool & ocean view
+      'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800&q=80',  // Tropical drinks
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',  // Beach sunset
+    ],
   },
   {
     id: '3',
@@ -155,6 +172,7 @@ export const packages: TravelPackage[] = [
     currency: 'USD',
     rating: 4.9,
     image: '🏔️',
+    coverImage: 'https://images.unsplash.com/photo-1569619743448-4c2576b3e753?w=1200&q=80',  // Perito Moreno Glacier
     highlights: ['Glaciar Perito Moreno', 'El Calafate', 'Ushuaia', 'Trekking'],
     description: 'Explora la Patagonia argentina en una aventura única. Glaciares milenarios, montañas imponentes y naturaleza salvaje. Perfecto para los amantes del trekking y la aventura.',
     included: [
@@ -185,7 +203,14 @@ export const packages: TravelPackage[] = [
         activities: ['Pasarelas del glaciar', 'Mini-trekking sobre hielo', 'Navegación'],
       },
     ],
-    gallery: ['🏔️', '❄️', '🥾', '🏕️', '🦅', '🌄'],
+    gallery: [
+      'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80',  // Patagonia mountains
+      'https://images.unsplash.com/photo-1616464742257-aa0b46b8f71c?w=800&q=80',  // Glacier trekking
+      'https://images.unsplash.com/photo-1562447165-8ec2d16c2bbb?w=800&q=80',  // Mountain landscape
+      'https://images.unsplash.com/photo-1581110319045-22969ad02aa3?w=800&q=80',  // Ushuaia
+      'https://images.unsplash.com/photo-1580628493585-b08a455412de?w=800&q=80',  // Mountain lake
+      'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80',  // Camping in nature
+    ],
   },
   {
     id: '4',
@@ -200,6 +225,7 @@ export const packages: TravelPackage[] = [
     currency: 'USD',
     rating: 5.0,
     image: '🗾',
+    coverImage: 'https://images.unsplash.com/photo-1528164344705-47542687000d?w=1200&q=80',  // Tokyo skyline
     highlights: ['Tokio', 'Kioto', 'Monte Fuji', 'Templos'],
     popular: true,
     description: 'Sumérgete en la cultura japonesa más auténtica. Desde la modernidad de Tokio hasta los templos ancestrales de Kioto. Ceremonia del té, geishas y el majestuoso Monte Fuji.',
@@ -232,9 +258,15 @@ export const packages: TravelPackage[] = [
         activities: ['Barrio de Akihabara', 'Torre de Tokio', 'Harajuku'],
       },
     ],
-    gallery: ['🗾', '⛩️', '🏯', '🍣', '🌸', '🗻'],
+    gallery: [
+      'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=800&q=80',  // Kyoto temple
+      'https://images.unsplash.com/photo-1480796927426-f609979314bd?w=800&q=80',  // Torii gates
+      'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=800&q=80',  // Shibuya crossing
+      'https://images.unsplash.com/photo-1542640244-7e672d6cef4e?w=800&q=80',  // Mount Fuji
+      'https://images.unsplash.com/photo-1478436127897-769e1b3f0f36?w=800&q=80',  // Cherry blossoms
+      'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=800&q=80',  // Japanese garden
+    ],
   },
-  // Resto de paquetes con estructura similar...
 ]
 
 export function getPackageBySlug(slug: string): TravelPackage | undefined {

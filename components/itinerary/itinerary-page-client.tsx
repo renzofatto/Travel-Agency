@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
-import { Calendar as CalendarIcon, Map, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar as CalendarIcon, Map, ChevronLeft, ChevronRight, List, CalendarDays } from 'lucide-react'
 import AddItineraryDialog from './add-itinerary-dialog'
 import ItineraryItemCard from './itinerary-item-card'
 import ItineraryMap from './itinerary-map'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface ItineraryItem {
   id: string
@@ -33,6 +34,7 @@ export default function ItineraryPageClient({
   items,
 }: ItineraryPageClientProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'day' | 'all'>('all') // Default to "all" view
 
   // Group items by date
   const itemsByDate = items.reduce((acc, item) => {
@@ -53,8 +55,8 @@ export default function ItineraryPageClient({
   // Get items for selected date
   const selectedDateItems = selectedDate ? itemsByDate[selectedDate] : []
 
-  // Filter items for map based on selected date
-  const itemsForMap = selectedDateItems.map((item) => ({
+  // Filter items for map based on view mode
+  const itemsForMap = (viewMode === 'day' ? selectedDateItems : items).map((item) => ({
     id: item.id,
     title: item.title,
     description: item.description,
@@ -89,7 +91,7 @@ export default function ItineraryPageClient({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Itinerary</h2>
           <p className="text-gray-600 mt-1">
@@ -97,11 +99,28 @@ export default function ItineraryPageClient({
             {dates.length > 0 && ` • ${dates.length} ${dates.length === 1 ? 'day' : 'days'}`}
           </p>
         </div>
-        <AddItineraryDialog groupId={groupId} />
+        <div className="flex items-center gap-3">
+          {/* View Mode Toggle */}
+          {dates.length > 1 && (
+            <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'day' | 'all')}>
+              <TabsList>
+                <TabsTrigger value="all" className="gap-2">
+                  <List className="w-4 h-4" />
+                  All Days
+                </TabsTrigger>
+                <TabsTrigger value="day" className="gap-2">
+                  <CalendarDays className="w-4 h-4" />
+                  By Day
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+          <AddItineraryDialog groupId={groupId} />
+        </div>
       </div>
 
-      {/* Day Navigation */}
-      {dates.length > 1 && (
+      {/* Day Navigation - Only show in "day" mode */}
+      {viewMode === 'day' && dates.length > 1 && (
         <div className="bg-white rounded-lg p-4 border shadow-sm">
           <div className="flex items-center justify-between">
             <Button
@@ -162,35 +181,81 @@ export default function ItineraryPageClient({
       )}
 
       {/* Itinerary List */}
-      {dates.length > 0 && selectedDate ? (
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 pb-2 border-b">
-            <Badge variant="secondary" className="text-base">
-              {selectedDateItems.length}{' '}
-              {selectedDateItems.length === 1 ? 'activity' : 'activities'}
-            </Badge>
-          </div>
+      {dates.length > 0 ? (
+        viewMode === 'day' && selectedDate ? (
+          // Day View - Single day
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 pb-2 border-b">
+              <Badge variant="secondary" className="text-base">
+                {selectedDateItems.length}{' '}
+                {selectedDateItems.length === 1 ? 'activity' : 'activities'}
+              </Badge>
+            </div>
 
-          <div className="space-y-3">
-            {selectedDateItems.map((item, index) => (
-              <div
-                key={item.id}
-                onClick={() => item.location && handleItemClick(item.id)}
-                className={`transition-all ${
-                  item.location
-                    ? 'cursor-pointer hover:shadow-md'
-                    : 'cursor-default'
-                } ${
-                  selectedItemId === item.id
-                    ? 'ring-2 ring-blue-500 shadow-lg'
-                    : ''
-                }`}
-              >
-                <ItineraryItemCard item={item} groupId={groupId} index={index + 1} />
-              </div>
-            ))}
+            <div className="space-y-3">
+              {selectedDateItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  onClick={() => item.location && handleItemClick(item.id)}
+                  className={`transition-all ${
+                    item.location
+                      ? 'cursor-pointer hover:shadow-md'
+                      : 'cursor-default'
+                  } ${
+                    selectedItemId === item.id
+                      ? 'ring-2 ring-blue-500 shadow-lg'
+                      : ''
+                  }`}
+                >
+                  <ItineraryItemCard item={item} groupId={groupId} index={index + 1} />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          // All Days View - Show all dates
+          <div className="space-y-8">
+            {dates.map((date) => {
+              const dateItems = itemsByDate[date]
+              const parsedDate = parseISO(date)
+
+              return (
+                <div key={date} className="space-y-4">
+                  <div className="flex items-center gap-3 pb-2 border-b">
+                    <CalendarIcon className="w-5 h-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {format(parsedDate, 'EEEE, MMMM d, yyyy')}
+                    </h3>
+                    <Badge variant="secondary">
+                      {dateItems.length}{' '}
+                      {dateItems.length === 1 ? 'activity' : 'activities'}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3">
+                    {dateItems.map((item, index) => (
+                      <div
+                        key={item.id}
+                        onClick={() => item.location && handleItemClick(item.id)}
+                        className={`transition-all ${
+                          item.location
+                            ? 'cursor-pointer hover:shadow-md'
+                            : 'cursor-default'
+                        } ${
+                          selectedItemId === item.id
+                            ? 'ring-2 ring-blue-500 shadow-lg'
+                            : ''
+                        }`}
+                      >
+                        <ItineraryItemCard item={item} groupId={groupId} index={index + 1} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )
       ) : (
         <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <CalendarIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />

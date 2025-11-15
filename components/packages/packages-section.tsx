@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import Image from 'next/image'
 import {
   MapPin,
   Calendar,
@@ -147,60 +148,74 @@ export default function PackagesSection() {
           return (
             <Card
               key={pkg.id}
-              className="hover:shadow-xl transition-all group cursor-pointer overflow-hidden"
+              className="hover:shadow-2xl transition-all group cursor-pointer overflow-hidden border-0"
             >
-              <CardHeader className="relative">
-                {pkg.popular && (
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0">
-                    <Star className="w-3 h-3 mr-1" />
-                    Popular
-                  </Badge>
-                )}
-                <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">
-                  {pkg.image}
+              {/* Image Header */}
+              <div className="relative h-64 overflow-hidden">
+                <Image
+                  src={pkg.coverImage}
+                  alt={pkg.name}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+
+                {/* Badges on Image */}
+                <div className="absolute top-4 right-4 flex flex-col gap-2">
+                  {pkg.popular && (
+                    <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg">
+                      <Star className="w-3 h-3 mr-1" />
+                      Popular
+                    </Badge>
+                  )}
+                  <Badge className={`${category.color} shadow-lg`}>{category.label}</Badge>
                 </div>
-                <CardTitle className="text-xl group-hover:text-blue-600 transition-colors">
-                  {pkg.name}
-                </CardTitle>
-                <CardDescription>
-                  <div className="flex items-center gap-2 mb-2">
+
+                {/* Title on Image */}
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <CardTitle className="text-2xl text-white mb-2 drop-shadow-lg">
+                    {pkg.name}
+                  </CardTitle>
+                  <div className="flex items-center gap-2 text-white/90 text-sm">
                     <MapPin className="w-4 h-4" />
                     <span>{pkg.country}</span>
                   </div>
-                  <Badge className={category.color}>{category.label}</Badge>
-                </CardDescription>
-              </CardHeader>
+                </div>
+              </div>
 
-              <CardContent>
+              <CardHeader className="relative pt-4 pb-2">
                 {/* Highlights */}
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Incluye:</p>
-                  <div className="flex flex-wrap gap-1">
+                <div className="mb-3">
+                  <div className="flex flex-wrap gap-1.5">
                     {pkg.highlights.slice(0, 4).map((highlight, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
+                      <Badge key={idx} variant="outline" className="text-xs font-normal">
                         {highlight}
                       </Badge>
                     ))}
                   </div>
                 </div>
+              </CardHeader>
 
-                {/* Details */}
-                <div className="grid grid-cols-2 gap-3 mb-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{pkg.duration} días</span>
+              <CardContent className="pt-0">
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <span className="font-medium">{pkg.duration} días</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span>{pkg.groupSize} pax</span>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Users className="w-4 h-4 text-blue-600" />
+                    <span className="font-medium">{pkg.groupSize} pax</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-gray-700">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span>{pkg.rating} / 5.0</span>
+                    <span className="font-medium">{pkg.rating} / 5.0</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>Todo incluido</span>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <Clock className="w-4 h-4 text-blue-600" />
+                    <span className="font-medium">Todo incluido</span>
                   </div>
                 </div>
 
