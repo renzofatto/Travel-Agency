@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import PackageForm from '@/components/packages/package-form'
 import PackageItineraryForm from '@/components/packages/package-itinerary-form'
 import PackageItineraryList from '@/components/packages/package-itinerary-list'
+import PackageIncludesForm from '@/components/packages/package-includes-form'
 
 export const metadata = {
   title: 'Edit Package | TravelHub',
@@ -60,6 +61,20 @@ export default async function EditPackagePage({
     .select('*')
     .eq('package_id', id)
     .order('day_number', { ascending: true })
+    .order('order_index', { ascending: true })
+
+  // Fetch included items
+  const { data: includedItems } = await supabase
+    .from('package_included_items')
+    .select('*')
+    .eq('package_id', id)
+    .order('order_index', { ascending: true })
+
+  // Fetch excluded items
+  const { data: excludedItems } = await supabase
+    .from('package_excluded_items')
+    .select('*')
+    .eq('package_id', id)
     .order('order_index', { ascending: true })
 
   return (
@@ -129,6 +144,20 @@ export default async function EditPackagePage({
             />
           </div>
         </div>
+      </div>
+
+      {/* Includes/Excludes Section */}
+      <Separator className="my-8" />
+      <div>
+        <h2 className="text-2xl font-bold mb-2">Package Inclusions & Exclusions</h2>
+        <p className="text-muted-foreground mb-6">
+          Manage what is and isn't included in this package
+        </p>
+        <PackageIncludesForm
+          packageId={id}
+          includedItems={includedItems || []}
+          excludedItems={excludedItems || []}
+        />
       </div>
     </div>
   )

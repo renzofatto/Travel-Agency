@@ -9,11 +9,19 @@ import {
   createPackageItineraryItemSchema,
   updatePackageItineraryItemSchema,
   assignPackageToGroupSchema,
+  createPackageIncludedItemSchema,
+  updatePackageIncludedItemSchema,
+  createPackageExcludedItemSchema,
+  updatePackageExcludedItemSchema,
   type CreatePackageInput,
   type EditPackageInput,
   type CreatePackageItineraryItemInput,
   type UpdatePackageItineraryItemInput,
   type AssignPackageToGroupInput,
+  type CreatePackageIncludedItemInput,
+  type UpdatePackageIncludedItemInput,
+  type CreatePackageExcludedItemInput,
+  type UpdatePackageExcludedItemInput,
 } from '@/lib/validations/package'
 
 // ============================================
@@ -432,4 +440,202 @@ export async function assignPackageToGroup(data: AssignPackageToGroupInput) {
   revalidatePath(`/groups/${data.group_id}/itinerary`)
 
   return { success: true, message: 'Package successfully assigned to group' }
+}
+
+// ============================================
+// PACKAGE INCLUDED ITEMS CRUD
+// ============================================
+
+export async function createPackageIncludedItem(data: CreatePackageIncludedItemInput) {
+  const { error: adminError } = await checkIsAdmin()
+  if (adminError) return { error: adminError }
+
+  // Validate input
+  const validation = createPackageIncludedItemSchema.safeParse(data)
+  if (!validation.success) {
+    return { error: validation.error.issues[0].message }
+  }
+
+  const supabase = await createClient()
+
+  // Create included item
+  const { data: item, error: itemError } = await supabase
+    .from('package_included_items')
+    .insert({
+      package_id: data.package_id,
+      title: data.title,
+      description: data.description || null,
+      icon: data.icon || null,
+      order_index: data.order_index,
+    })
+    .select()
+    .single()
+
+  if (itemError) {
+    console.error('Error creating included item:', itemError)
+    return { error: 'Failed to create included item. Please try again.' }
+  }
+
+  revalidatePath('/admin/packages')
+  revalidatePath(`/admin/packages/${data.package_id}`)
+  revalidatePath(`/paquetes/${data.package_id}`)
+  return { success: true, data: item }
+}
+
+export async function updatePackageIncludedItem(data: UpdatePackageIncludedItemInput) {
+  const { error: adminError } = await checkIsAdmin()
+  if (adminError) return { error: adminError }
+
+  // Validate input
+  const validation = updatePackageIncludedItemSchema.safeParse(data)
+  if (!validation.success) {
+    return { error: validation.error.issues[0].message }
+  }
+
+  const supabase = await createClient()
+
+  // Update included item
+  const { data: item, error: itemError } = await supabase
+    .from('package_included_items')
+    .update({
+      title: data.title,
+      description: data.description || null,
+      icon: data.icon || null,
+      order_index: data.order_index,
+    })
+    .eq('id', data.id)
+    .select()
+    .single()
+
+  if (itemError) {
+    console.error('Error updating included item:', itemError)
+    return { error: 'Failed to update included item. Please try again.' }
+  }
+
+  revalidatePath('/admin/packages')
+  revalidatePath(`/admin/packages/${data.package_id}`)
+  revalidatePath(`/paquetes/${data.package_id}`)
+  return { success: true, data: item }
+}
+
+export async function deletePackageIncludedItem(itemId: string, packageId: string) {
+  const { error: adminError } = await checkIsAdmin()
+  if (adminError) return { error: adminError }
+
+  const supabase = await createClient()
+
+  // Delete included item
+  const { error: deleteError } = await supabase
+    .from('package_included_items')
+    .delete()
+    .eq('id', itemId)
+
+  if (deleteError) {
+    console.error('Error deleting included item:', deleteError)
+    return { error: 'Failed to delete included item. Please try again.' }
+  }
+
+  revalidatePath('/admin/packages')
+  revalidatePath(`/admin/packages/${packageId}`)
+  revalidatePath(`/paquetes/${packageId}`)
+  return { success: true }
+}
+
+// ============================================
+// PACKAGE EXCLUDED ITEMS CRUD
+// ============================================
+
+export async function createPackageExcludedItem(data: CreatePackageExcludedItemInput) {
+  const { error: adminError } = await checkIsAdmin()
+  if (adminError) return { error: adminError }
+
+  // Validate input
+  const validation = createPackageExcludedItemSchema.safeParse(data)
+  if (!validation.success) {
+    return { error: validation.error.issues[0].message }
+  }
+
+  const supabase = await createClient()
+
+  // Create excluded item
+  const { data: item, error: itemError } = await supabase
+    .from('package_excluded_items')
+    .insert({
+      package_id: data.package_id,
+      title: data.title,
+      description: data.description || null,
+      icon: data.icon || null,
+      order_index: data.order_index,
+    })
+    .select()
+    .single()
+
+  if (itemError) {
+    console.error('Error creating excluded item:', itemError)
+    return { error: 'Failed to create excluded item. Please try again.' }
+  }
+
+  revalidatePath('/admin/packages')
+  revalidatePath(`/admin/packages/${data.package_id}`)
+  revalidatePath(`/paquetes/${data.package_id}`)
+  return { success: true, data: item }
+}
+
+export async function updatePackageExcludedItem(data: UpdatePackageExcludedItemInput) {
+  const { error: adminError } = await checkIsAdmin()
+  if (adminError) return { error: adminError }
+
+  // Validate input
+  const validation = updatePackageExcludedItemSchema.safeParse(data)
+  if (!validation.success) {
+    return { error: validation.error.issues[0].message }
+  }
+
+  const supabase = await createClient()
+
+  // Update excluded item
+  const { data: item, error: itemError } = await supabase
+    .from('package_excluded_items')
+    .update({
+      title: data.title,
+      description: data.description || null,
+      icon: data.icon || null,
+      order_index: data.order_index,
+    })
+    .eq('id', data.id)
+    .select()
+    .single()
+
+  if (itemError) {
+    console.error('Error updating excluded item:', itemError)
+    return { error: 'Failed to update excluded item. Please try again.' }
+  }
+
+  revalidatePath('/admin/packages')
+  revalidatePath(`/admin/packages/${data.package_id}`)
+  revalidatePath(`/paquetes/${data.package_id}`)
+  return { success: true, data: item }
+}
+
+export async function deletePackageExcludedItem(itemId: string, packageId: string) {
+  const { error: adminError } = await checkIsAdmin()
+  if (adminError) return { error: adminError }
+
+  const supabase = await createClient()
+
+  // Delete excluded item
+  const { error: deleteError } = await supabase
+    .from('package_excluded_items')
+    .delete()
+    .eq('id', itemId)
+
+  if (deleteError) {
+    console.error('Error deleting excluded item:', deleteError)
+    return { error: 'Failed to delete excluded item. Please try again.' }
+  }
+
+  revalidatePath('/admin/packages')
+  revalidatePath(`/admin/packages/${packageId}`)
+  revalidatePath(`/paquetes/${packageId}`)
+  return { success: true }
 }

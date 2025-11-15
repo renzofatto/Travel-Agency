@@ -124,3 +124,71 @@ export const assignPackageToGroupSchema = z.object({
 })
 
 export type AssignPackageToGroupInput = z.infer<typeof assignPackageToGroupSchema>
+
+// ============================================
+// PACKAGE INCLUDED/EXCLUDED ITEMS SCHEMAS
+// ============================================
+
+// Base schema for included items
+export const packageIncludedItemBaseSchema = z.object({
+  title: z
+    .string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(200, 'Title must be less than 200 characters'),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
+  icon: z.string().max(10, 'Icon must be less than 10 characters').optional(), // Emoji
+  order_index: z.number().int().min(0).default(0),
+})
+
+export type PackageIncludedItemInput = z.infer<typeof packageIncludedItemBaseSchema>
+
+// Create schema for included items
+export const createPackageIncludedItemSchema = packageIncludedItemBaseSchema.merge(
+  z.object({
+    package_id: z.string().uuid('Invalid package ID'),
+  })
+)
+
+export type CreatePackageIncludedItemInput = z.infer<typeof createPackageIncludedItemSchema>
+
+// Update schema for included items
+export const updatePackageIncludedItemSchema = packageIncludedItemBaseSchema.merge(
+  z.object({
+    id: z.string().uuid('Invalid item ID'),
+    package_id: z.string().uuid('Invalid package ID'),
+  })
+)
+
+export type UpdatePackageIncludedItemInput = z.infer<typeof updatePackageIncludedItemSchema>
+
+// Base schema for excluded items
+export const packageExcludedItemBaseSchema = z.object({
+  title: z
+    .string()
+    .min(3, 'Title must be at least 3 characters')
+    .max(200, 'Title must be less than 200 characters'),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
+  icon: z.string().max(10, 'Icon must be less than 10 characters').optional(), // Emoji
+  order_index: z.number().int().min(0).default(0),
+})
+
+export type PackageExcludedItemInput = z.infer<typeof packageExcludedItemBaseSchema>
+
+// Create schema for excluded items
+export const createPackageExcludedItemSchema = packageExcludedItemBaseSchema.merge(
+  z.object({
+    package_id: z.string().uuid('Invalid package ID'),
+  })
+)
+
+export type CreatePackageExcludedItemInput = z.infer<typeof createPackageExcludedItemSchema>
+
+// Update schema for excluded items
+export const updatePackageExcludedItemSchema = packageExcludedItemBaseSchema.merge(
+  z.object({
+    id: z.string().uuid('Invalid item ID'),
+    package_id: z.string().uuid('Invalid package ID'),
+  })
+)
+
+export type UpdatePackageExcludedItemInput = z.infer<typeof updatePackageExcludedItemSchema>

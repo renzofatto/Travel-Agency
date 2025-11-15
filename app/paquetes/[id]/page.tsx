@@ -15,6 +15,7 @@ import {
   Clock,
   DollarSign,
   CheckCircle2,
+  XCircle,
 } from 'lucide-react'
 
 const difficultyLabels = {
@@ -74,6 +75,20 @@ export default async function PackageDetailPage({
   if (error || !pkg) {
     notFound()
   }
+
+  // Fetch included items
+  const { data: includedItems } = await supabase
+    .from('package_included_items')
+    .select('*')
+    .eq('package_id', id)
+    .order('order_index', { ascending: true })
+
+  // Fetch excluded items
+  const { data: excludedItems } = await supabase
+    .from('package_excluded_items')
+    .select('*')
+    .eq('package_id', id)
+    .order('order_index', { ascending: true })
 
   // Group itinerary items by day
   const itemsByDay: Record<number, typeof pkg.package_itinerary_items> = {}
@@ -308,46 +323,58 @@ export default async function PackageDetailPage({
             )}
 
             {/* What's Included */}
-            <Card className="border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
-                  ¿Qué incluye?
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Alojamiento</p>
-                      <p className="text-sm text-gray-600">Hoteles seleccionados</p>
-                    </div>
+            {includedItems && includedItems.length > 0 && (
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    ¿Qué incluye?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {includedItems.map((item) => (
+                      <div key={item.id} className="flex items-start gap-3">
+                        <span className="text-2xl mt-0.5">{item.icon || '✅'}</span>
+                        <div>
+                          <p className="font-semibold">{item.title}</p>
+                          {item.description && (
+                            <p className="text-sm text-gray-600">{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Transporte</p>
-                      <p className="text-sm text-gray-600">Traslados incluidos</p>
-                    </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* What's NOT Included */}
+            {excludedItems && excludedItems.length > 0 && (
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <XCircle className="w-5 h-5 text-red-600" />
+                    No incluye
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {excludedItems.map((item) => (
+                      <div key={item.id} className="flex items-start gap-3">
+                        <span className="text-2xl mt-0.5">{item.icon || '❌'}</span>
+                        <div>
+                          <p className="font-semibold">{item.title}</p>
+                          {item.description && (
+                            <p className="text-sm text-gray-600">{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Actividades</p>
-                      <p className="text-sm text-gray-600">Según itinerario</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Asistencia</p>
-                      <p className="text-sm text-gray-600">Soporte 24/7</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar - 1 column */}
