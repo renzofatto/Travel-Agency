@@ -1,9 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { format, parseISO } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
+import { Calendar as CalendarIcon, Map } from 'lucide-react'
 import AddItineraryDialog from '@/components/itinerary/add-itinerary-dialog'
 import ItineraryItemCard from '@/components/itinerary/itinerary-item-card'
+import ItineraryMap from '@/components/itinerary/itinerary-map'
+import { Badge } from '@/components/ui/badge'
 
 export default async function GroupItineraryPage({
   params,
@@ -53,6 +55,15 @@ export default async function GroupItineraryPage({
 
   const dates = Object.keys(itemsByDate || {}).sort()
 
+  const itemsForMap = items?.map((item) => ({
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    date: item.date,
+    location: item.location,
+    category: item.category,
+  })) || []
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -65,6 +76,21 @@ export default async function GroupItineraryPage({
         </div>
         <AddItineraryDialog groupId={id} />
       </div>
+
+      {/* Map Section */}
+      {items && items.length > 0 && (
+        <div className="bg-white rounded-lg p-6 border shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Map className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Trip Map</h3>
+            <Badge variant="outline" className="ml-auto">
+              {itemsForMap.filter((i) => i.location).length} location
+              {itemsForMap.filter((i) => i.location).length !== 1 ? 's' : ''}
+            </Badge>
+          </div>
+          <ItineraryMap items={itemsForMap} />
+        </div>
+      )}
 
       {/* Itinerary List */}
       {dates.length > 0 ? (

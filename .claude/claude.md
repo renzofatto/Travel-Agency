@@ -20,6 +20,7 @@ TravelHub is a Next.js 14+ application that allows users to organize group trips
 - **State Management**: TanStack Query (React Query)
 - **Forms**: React Hook Form + Zod validation
 - **UI Libraries**: Lucide React (icons), Sonner (toasts), Recharts (charts), @dnd-kit (drag & drop)
+- **Maps**: Leaflet, React-Leaflet (interactive maps with OpenStreetMap)
 
 ## Project Structure
 
@@ -68,7 +69,8 @@ travel-agency/
 │   ├── itinerary/              # ✅ Itinerary components
 │   │   ├── itinerary-form.tsx
 │   │   ├── itinerary-item-card.tsx
-│   │   └── add-itinerary-dialog.tsx
+│   │   ├── add-itinerary-dialog.tsx
+│   │   └── itinerary-map.tsx         # Interactive map (2025-11-15)
 │   ├── expenses/               # ✅ Expense components
 │   │   ├── expense-form.tsx
 │   │   ├── expense-card.tsx
@@ -76,7 +78,9 @@ travel-agency/
 │   │   ├── balance-dashboard.tsx
 │   │   ├── settle-button.tsx
 │   │   ├── record-payment-dialog.tsx  # Payment recording (2025-11-15)
-│   │   └── payment-history.tsx        # Payment list (2025-11-15)
+│   │   ├── payment-history.tsx        # Payment list (2025-11-15)
+│   │   ├── transaction-list.tsx       # Unified transactions (2025-11-15)
+│   │   └── personal-balance-card.tsx  # Personal balance (2025-11-15)
 │   ├── documents/              # ✅ Document components
 │   │   ├── upload-document-dialog.tsx
 │   │   └── document-card.tsx
@@ -266,10 +270,20 @@ travel-agency/
   - Date-grouped view (app/groups/[id]/itinerary/page.tsx)
   - Activities sorted by date and order
   - Expandable activity cards
-- **Components** (implemented 2025-11-14)
+- **Interactive Map** (implemented 2025-11-15)
+  - Real-time location visualization (components/itinerary/itinerary-map.tsx)
+  - Geocoding with Nominatim (OpenStreetMap - free API)
+  - Custom markers with category emojis
+  - Interactive popups showing activity details
+  - Auto-centering and smart zoom based on locations
+  - SSR-safe with Next.js dynamic imports
+  - Graceful fallbacks for missing/invalid locations
+  - Easy to switch to Mapbox or other providers (just change TileLayer URL)
+- **Components** (implemented 2025-11-14 & 2025-11-15)
   - ItineraryForm - Create/edit form with validation
   - ItineraryItemCard - Activity card with actions
   - AddItineraryDialog - Modal for adding activities
+  - ItineraryMap - Interactive Leaflet map with geocoding (2025-11-15)
 - **Validation** (implemented 2025-11-14)
   - Zod schemas (lib/validations/itinerary.ts)
   - Time validation (end after start)
@@ -298,8 +312,8 @@ travel-agency/
   - Delete payments (creator, leader, or admin only)
   - Validation: can't pay yourself, amount must be positive
   - Database table: expense_payments with RLS policies
-- **Pages** (implemented 2025-11-14)
-  - Expenses list (app/groups/[id]/expenses/page.tsx)
+- **Pages** (implemented 2025-11-14 & 2025-11-15)
+  - Unified expenses page with transactions (app/groups/[id]/expenses/page.tsx) - Updated 2025-11-15
   - Balance dashboard (app/groups/[id]/expenses/balances/page.tsx)
 - **Components** (implemented 2025-11-14 & 2025-11-15)
   - ExpenseForm - Multi-split form with real-time validation
@@ -309,6 +323,8 @@ travel-agency/
   - AddExpenseDialog - Create expense modal
   - RecordPaymentDialog - Record payment modal (2025-11-15)
   - PaymentHistory - Display payment list (2025-11-15)
+  - TransactionList - Unified expenses and payments display (2025-11-15)
+  - PersonalBalanceCard - User's balance with who owes whom (2025-11-15)
 - **Validation** (implemented 2025-11-14 & 2025-11-15)
   - Zod schemas (lib/validations/expense.ts, lib/validations/payment.ts)
   - Percentage sum validation (must equal 100%)
@@ -460,6 +476,14 @@ travel-agency/
   - Updated form to use undefined instead of 0 for initial values
   - Enhanced calculateSplits function with proper null handling
   - All expense types now work correctly
+- **Unified Expenses & Payments View** (2025-11-15)
+  - Completely redesigned expenses page to show both expenses and payments
+  - Created TransactionList component for chronological display
+  - Created PersonalBalanceCard showing who owes what to whom
+  - Two-column layout: personal balance (left) + transaction list (right)
+  - Visual differentiation: expenses (white bg), payments (blue bg)
+  - Clear indication of user's financial status in the group
+  - Stats cards for total expenses, payments, and transactions
 
 ### 🚧 TO BE IMPLEMENTED (Phase 10+):
 - Drag & drop for itinerary reordering
@@ -818,6 +842,84 @@ export async function uploadPhotos(formData: FormData) {
   }
 }
 ```
+
+### Interactive Map Pattern (Implemented - 2025-11-15)
+Leaflet map integration with SSR support and geocoding (see components/itinerary/itinerary-map.tsx):
+```typescript
+'use client'
+import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react'
+
+// Dynamic imports for SSR compatibility
+const MapContainer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.MapContainer),
+  { ssr: false }
+)
+
+// Geocoding function using Nominatim (OpenStreetMap)
+async function geocodeLocation(location: string): Promise<[number, number] | null> {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`
+    )
+    const data = await response.json()
+    if (data && data.length > 0) {
+      return [parseFloat(data[0].lat), parseFloat(data[0].lon)]
+    }
+  } catch (error) {
+    console.error('Geocoding error:', error)
+  }
+  return null
+}
+
+export default function ItineraryMap({ items }) {
+  const [isClient, setIsClient] = useState(false)
+  const [locations, setLocations] = useState([])
+  const [L, setL] = useState(null)
+
+  // Handle client-side mounting
+  useEffect(() => {
+    setIsClient(true)
+    import('leaflet').then((leaflet) => {
+      setL(leaflet.default)
+    })
+  }, [])
+
+  // Geocode locations
+  useEffect(() => {
+    if (!isClient || !L) return
+    // Geocode all items with locations...
+  }, [items, isClient, L])
+
+  // Custom markers with emojis
+  const customIcon = (category: string) => {
+    return L.divIcon({
+      html: `<div style="...">${emoji}</div>`,
+      iconSize: [40, 40],
+    })
+  }
+
+  return (
+    <MapContainer center={center} zoom={10}>
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {locations.map(({ item, coords }) => (
+        <Marker key={item.id} position={coords} icon={customIcon(item.category)}>
+          <Popup>{/* Activity details */}</Popup>
+        </Marker>
+      ))}
+    </MapContainer>
+  )
+}
+```
+
+**Key Points:**
+- Use Next.js dynamic imports with `ssr: false` for Leaflet
+- Add Leaflet CSS to globals.css (don't import CSS dynamically - TypeScript error)
+- Handle client-side mounting with `useState` and `useEffect`
+- Use Nominatim for free geocoding (respect rate limits - 1 req/sec)
+- Easy to switch to Mapbox: just change TileLayer URL
+- Provide loading states and empty states for better UX
+- Custom markers can be created with L.divIcon() for HTML/emoji markers
 
 ## Next Steps (Phase 9)
 
