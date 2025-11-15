@@ -22,6 +22,12 @@ export interface TravelPackage {
     title: string
     description: string
     activities: string[]
+    image?: string  // Day image URL
+    location?: {
+      name: string
+      lat: number
+      lng: number
+    }
   }[]
   gallery: string[]  // Array of image URLs
 }
@@ -62,32 +68,42 @@ export const packages: TravelPackage[] = [
       {
         day: 1,
         title: 'Llegada a París',
-        description: 'Llegada al aeropuerto Charles de Gaulle, traslado al hotel y tiempo libre para explorar el barrio.',
+        description: 'Llegada al aeropuerto Charles de Gaulle, traslado al hotel y tiempo libre para explorar el barrio de Montmartre.',
         activities: ['Check-in en el hotel', 'Cena de bienvenida', 'Paseo por Montmartre'],
+        image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
+        location: { name: 'París, Francia', lat: 48.8566, lng: 2.3522 },
       },
       {
         day: 2,
         title: 'París - Torre Eiffel y Louvre',
-        description: 'Día completo visitando los iconos de París.',
+        description: 'Día completo visitando los iconos más emblemáticos de París.',
         activities: ['Torre Eiffel', 'Museo del Louvre', 'Crucero por el Sena'],
+        image: 'https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&q=80',
+        location: { name: 'Torre Eiffel', lat: 48.8584, lng: 2.2945 },
       },
       {
         day: 3,
         title: 'París - Versalles',
-        description: 'Excursión al Palacio de Versalles y sus jardines.',
+        description: 'Excursión al impresionante Palacio de Versalles y sus jardines históricos.',
         activities: ['Palacio de Versalles', 'Jardines de Versalles', 'Tarde libre en París'],
+        image: 'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?w=800&q=80',
+        location: { name: 'Versalles', lat: 48.8049, lng: 2.1204 },
       },
       {
         day: 4,
         title: 'París - Barcelona',
-        description: 'Vuelo a Barcelona y recorrido por Las Ramblas.',
+        description: 'Vuelo a Barcelona y primera exploración de la vibrante ciudad catalana.',
         activities: ['Vuelo a Barcelona', 'Las Ramblas', 'Barrio Gótico'],
+        image: 'https://images.unsplash.com/photo-1562883676-8c7feb83f09b?w=800&q=80',
+        location: { name: 'Barcelona, España', lat: 41.3851, lng: 2.1734 },
       },
       {
         day: 5,
         title: 'Barcelona - Sagrada Familia',
-        description: 'Visita a la obra maestra de Gaudí y el Parque Güell.',
+        description: 'Visita a las obras maestras de Gaudí que definen Barcelona.',
         activities: ['Sagrada Familia', 'Parque Güell', 'Casa Batlló'],
+        image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800&q=80',
+        location: { name: 'Sagrada Familia', lat: 41.4036, lng: 2.1744 },
       },
     ],
     gallery: [

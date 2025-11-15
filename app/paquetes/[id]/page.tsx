@@ -5,6 +5,7 @@ import { getPackageBySlug } from '@/lib/data/packages'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import ItineraryRouteMap from '@/components/packages/itinerary-map'
 import {
   ArrowLeft,
   Calendar,
@@ -236,36 +237,119 @@ export default async function PackageDetailPage({
         </div>
       </section>
 
-      {/* Itinerary Section */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold mb-8 text-gray-900">
-          <Clock className="w-8 h-8 inline mr-2" />
-          Itinerario
-        </h2>
-        <div className="space-y-4">
-          {pkg.itinerary.map((day) => (
-            <Card key={day.day} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
-                    {day.day}
-                  </div>
+      {/* Itinerary Section - Enhanced with Map and Images */}
+      <section className="bg-gradient-to-b from-gray-50 to-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4 text-gray-900">
+              Tu aventura día a día
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Descubre el itinerario completo con mapa interactivo de la ruta
+            </p>
+          </div>
+
+          {/* Interactive Route Map */}
+          <div className="mb-16">
+            <ItineraryRouteMap days={pkg.itinerary} />
+          </div>
+
+          {/* Timeline with Images */}
+          <div className="max-w-6xl mx-auto">
+            {pkg.itinerary.map((day, idx) => (
+              <div key={day.day} className="relative">
+                {/* Connecting Line */}
+                {idx < pkg.itinerary.length - 1 && (
+                  <div className="absolute left-1/2 top-24 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-blue-300 transform -translate-x-1/2 z-0" />
+                )}
+
+                {/* Day Card */}
+                <div className={`flex items-center gap-8 mb-12 ${idx % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
+                  {/* Image Side */}
                   <div className="flex-1">
-                    <CardTitle className="text-xl mb-2">{day.title}</CardTitle>
-                    <p className="text-gray-600 mb-4">{day.description}</p>
-                    <div className="space-y-1">
-                      {day.activities.map((activity, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
-                          <Check className="w-4 h-4 text-green-600" />
-                          <span>{activity}</span>
+                    <div className="relative h-80 rounded-2xl overflow-hidden shadow-2xl group">
+                      {day.image && (
+                        <Image
+                          src={day.image}
+                          alt={day.title}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      )}
+                      {!day.image && (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
+                          <span className="text-8xl">📍</span>
                         </div>
-                      ))}
+                      )}
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+
+                      {/* Day number badge on image */}
+                      <div className="absolute top-6 left-6">
+                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl">
+                          <span className="text-2xl font-bold text-blue-600">
+                            {day.day}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Location badge */}
+                      {day.location && (
+                        <div className="absolute bottom-6 left-6 right-6">
+                          <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 inline-flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium text-gray-900">{day.location.name}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
+
+                  {/* Content Side */}
+                  <div className="flex-1">
+                    <Card className="border-2 border-blue-100 shadow-xl hover:shadow-2xl transition-all">
+                      <CardHeader>
+                        <div className="flex items-center gap-3 mb-3">
+                          <Badge className="bg-blue-600 text-white text-base px-4 py-1">
+                            Día {day.day}
+                          </Badge>
+                          {day.location && (
+                            <Badge variant="outline" className="text-sm">
+                              <MapPin className="w-3 h-3 mr-1" />
+                              {day.location.name}
+                            </Badge>
+                          )}
+                        </div>
+                        <CardTitle className="text-2xl text-gray-900 mb-3">
+                          {day.title}
+                        </CardTitle>
+                        <p className="text-gray-600 leading-relaxed">
+                          {day.description}
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-gray-700 mb-3">
+                            Actividades incluidas:
+                          </p>
+                          {day.activities.map((activity, actIdx) => (
+                            <div
+                              key={actIdx}
+                              className="flex items-center gap-3 text-gray-700"
+                            >
+                              <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
+                              <span>{activity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
-              </CardHeader>
-            </Card>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
