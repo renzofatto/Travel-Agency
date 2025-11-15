@@ -34,8 +34,9 @@ interface ItineraryItemCardProps {
     category: 'transport' | 'accommodation' | 'activity' | 'food' | 'other'
     order_index: number
   }
-  groupId: string
+  groupId?: string
   isDragging?: boolean
+  index?: number
 }
 
 const categoryConfig = {
@@ -46,13 +47,14 @@ const categoryConfig = {
   other: { emoji: '📌', label: 'Other', color: 'bg-gray-100 text-gray-700' },
 }
 
-export default function ItineraryItemCard({ item, groupId, isDragging }: ItineraryItemCardProps) {
+export default function ItineraryItemCard({ item, groupId, isDragging, index }: ItineraryItemCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const category = categoryConfig[item.category]
 
   const handleDelete = async () => {
+    if (!groupId) return
     setIsDeleting(true)
     const result = await deleteItineraryItem(item.id, groupId)
 
@@ -74,6 +76,15 @@ export default function ItineraryItemCard({ item, groupId, isDragging }: Itinera
       >
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
+            {/* Number Badge */}
+            {index && (
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold shadow-sm">
+                  {index}
+                </div>
+              </div>
+            )}
+
             {/* Drag Handle */}
             <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 mt-1">
               <GripVertical className="w-5 h-5" />
@@ -146,29 +157,31 @@ export default function ItineraryItemCard({ item, groupId, isDragging }: Itinera
       </Card>
 
       {/* Edit Dialog */}
-      <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Activity</DialogTitle>
-          </DialogHeader>
-          <ItineraryForm
-            groupId={groupId}
-            mode="edit"
-            defaultValues={{
-              title: item.title,
-              description: item.description || '',
-              date: item.date,
-              start_time: item.start_time || '',
-              end_time: item.end_time || '',
-              location: item.location || '',
-              category: item.category,
-              group_id: groupId,
-              id: item.id,
-            }}
-            onSuccess={() => setIsEditing(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {groupId && (
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Activity</DialogTitle>
+            </DialogHeader>
+            <ItineraryForm
+              groupId={groupId}
+              mode="edit"
+              defaultValues={{
+                title: item.title,
+                description: item.description || '',
+                date: item.date,
+                start_time: item.start_time || '',
+                end_time: item.end_time || '',
+                location: item.location || '',
+                category: item.category,
+                group_id: groupId,
+                id: item.id,
+              }}
+              onSuccess={() => setIsEditing(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   )
 }

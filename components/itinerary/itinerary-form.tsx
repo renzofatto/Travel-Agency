@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select'
 import { createItineraryItemSchema, type CreateItineraryItemInput } from '@/lib/validations/itinerary'
 import { createItineraryItem, updateItineraryItem } from '@/lib/actions/itinerary-actions'
+import LocationPicker from './location-picker'
 
 interface ItineraryFormProps {
   groupId: string
@@ -189,15 +190,19 @@ export default function ItineraryForm({
           />
         </div>
 
-        {/* Location */}
+        {/* Location with Map Picker */}
         <FormField
           control={form.control}
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Champ de Mars, Paris" {...field} />
+                <LocationPicker
+                  value={field.value || ''}
+                  onChange={(location) => field.onChange(location)}
+                  label="Location"
+                  placeholder="Search for a place (e.g., Eiffel Tower, Paris)"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

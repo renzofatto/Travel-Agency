@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react'
 import { MapPin } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
@@ -22,6 +22,12 @@ const Popup = dynamic(
   { ssr: false }
 )
 
+// Component to handle map events and set reference
+const MapEventHandler = dynamic(
+  () => import('./map-event-handler').then((mod) => mod.MapEventHandler),
+  { ssr: false }
+)
+
 interface ItineraryItem {
   id: string
   title: string
@@ -33,6 +39,11 @@ interface ItineraryItem {
 
 interface ItineraryMapProps {
   items: ItineraryItem[]
+  selectedItemId?: string | null
+}
+
+export interface ItineraryMapRef {
+  centerOnLocation: (itemId: string) => void
 }
 
 const categoryEmojis: Record<string, string> = {
@@ -61,13 +72,15 @@ async function geocodeLocation(location: string): Promise<[number, number] | nul
   return null
 }
 
-export default function ItineraryMap({ items }: ItineraryMapProps) {
-  const [isClient, setIsClient] = useState(false)
-  const [locations, setLocations] = useState<
-    Array<{ item: ItineraryItem; coords: [number, number] }>
-  >([])
-  const [loading, setLoading] = useState(true)
-  const [L, setL] = useState<any>(null)
+const ItineraryMap = forwardRef<ItineraryMapRef, ItineraryMapProps>(
+  ({ items, selectedItemId }, ref) => {
+    const [isClient, setIsClient] = useState(false)
+    const [locations, setLocations] = useState<
+      Array<{ item: ItineraryItem; coords: [number, number]; index: number }>
+    >([])
+    const [loading, setLoading] = useState(true)
+    const [L, setL] = useState<any>(null)
+    const mapRef = useRef<any>(null)
 
   useEffect(() => {
     setIsClient(true)
@@ -76,6 +89,16 @@ export default function ItineraryMap({ items }: ItineraryMapProps) {
       setL(leaflet.default)
     })
   }, [])
+
+  // Expose methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    centerOnLocation: (itemId: string) => {
+      const location = locations.find((loc) => loc.item.id === itemId)
+      if (location && mapRef.current) {
+        mapRef.current.setView(location.coords, 15, { animate: true, duration: 1 })
+      }
+    },
+  }))
 
   useEffect(() => {
     if (!isClient || !L) return
@@ -87,21 +110,34 @@ export default function ItineraryMap({ items }: ItineraryMapProps) {
       return
     }
 
-    // Geocode all locations
+    // Geocode all locations with their original index
     Promise.all(
-      itemsWithLocation.map(async (item) => {
+      itemsWithLocation.map(async (item, originalIndex) => {
         const coords = await geocodeLocation(item.location!)
-        return coords ? { item, coords } : null
+        // Find the index in the original items array
+        const indexInOriginal = items.findIndex((i) => i.id === item.id)
+        return coords ? { item, coords, index: indexInOriginal + 1 } : null
       })
     ).then((results) => {
       const validLocations = results.filter((r) => r !== null) as Array<{
         item: ItineraryItem
         coords: [number, number]
+        index: number
       }>
       setLocations(validLocations)
       setLoading(false)
     })
   }, [items, isClient, L])
+
+  // Center on selected item when selectedItemId changes
+  useEffect(() => {
+    if (selectedItemId && mapRef.current && locations.length > 0) {
+      const location = locations.find((loc) => loc.item.id === selectedItemId)
+      if (location) {
+        mapRef.current.setView(location.coords, 15, { animate: true, duration: 1 })
+      }
+    }
+  }, [selectedItemId, locations])
 
   if (!isClient || !L) {
     return (
@@ -146,12 +182,16 @@ export default function ItineraryMap({ items }: ItineraryMapProps) {
     locations.reduce((sum, loc) => sum + loc.coords[1], 0) / locations.length
   const center: [number, number] = [centerLat, centerLng]
 
-  // Custom icon
-  const customIcon = (category: string) => {
+  // Custom numbered icon
+  const numberedIcon = (number: number, isSelected: boolean = false) => {
     if (typeof window === 'undefined' || !L) return undefined
 
+    const bgColor = isSelected ? '#3b82f6' : '#ffffff'
+    const textColor = isSelected ? '#ffffff' : '#3b82f6'
+    const borderColor = '#3b82f6'
+
     return L.divIcon({
-      html: `<div style="background: white; border: 3px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">${categoryEmojis[category] || '📍'}</div>`,
+      html: `<div style="background: ${bgColor}; border: 3px solid ${borderColor}; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; color: ${textColor}; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2); transition: all 0.3s ease;">${number}</div>`,
       className: 'custom-marker',
       iconSize: [40, 40],
       iconAnchor: [20, 40],
@@ -167,37 +207,52 @@ export default function ItineraryMap({ items }: ItineraryMapProps) {
         scrollWheelZoom={true}
         className="h-full w-full"
       >
+        <MapEventHandler mapRef={mapRef} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {locations.map(({ item, coords }, index) => (
-          <Marker key={item.id} position={coords} icon={customIcon(item.category)}>
-            <Popup>
-              <div className="p-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xl">{categoryEmojis[item.category]}</span>
-                  <h3 className="font-semibold text-gray-900">{item.title}</h3>
+        {locations.map(({ item, coords, index }) => {
+          const isSelected = selectedItemId === item.id
+          return (
+            <Marker
+              key={item.id}
+              position={coords}
+              icon={numberedIcon(index, isSelected)}
+            >
+              <Popup>
+                <div className="p-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-sm font-bold">
+                      {index}
+                    </div>
+                    <span className="text-xl">{categoryEmojis[item.category]}</span>
+                    <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                  </div>
+                  {item.description && (
+                    <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <MapPin className="w-3 h-3" />
+                    <span>{item.location}</span>
+                  </div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    {new Date(item.date).toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </div>
                 </div>
-                {item.description && (
-                  <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                )}
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <MapPin className="w-3 h-3" />
-                  <span>{item.location}</span>
-                </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {new Date(item.date).toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          )
+        })}
       </MapContainer>
     </div>
   )
-}
+})
+
+ItineraryMap.displayName = 'ItineraryMap'
+
+export default ItineraryMap
