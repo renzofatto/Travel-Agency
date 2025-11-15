@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   Shield,
+  Package,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -22,7 +23,10 @@ const getNavigation = (isAdmin: boolean) => {
   ]
 
   if (isAdmin) {
-    nav.push({ name: 'Admin Panel', href: '/admin', icon: Shield })
+    nav.push(
+      { name: 'Admin Panel', href: '/admin', icon: Shield },
+      { name: 'Travel Packages', href: '/admin/packages', icon: Package }
+    )
   }
 
   return nav

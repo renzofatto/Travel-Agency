@@ -24,53 +24,48 @@ import {
   Star,
   Clock,
 } from 'lucide-react'
-import { packages } from '@/lib/data/packages'
+// import { packages } from '@/lib/data/packages'
 
-const typeLabels = {
-  adventure: { label: 'Aventura', color: 'bg-orange-100 text-orange-700' },
-  relax: { label: 'Relax', color: 'bg-blue-100 text-blue-700' },
-  cultural: { label: 'Cultural', color: 'bg-purple-100 text-purple-700' },
-  family: { label: 'Familiar', color: 'bg-green-100 text-green-700' },
-  luxury: { label: 'Lujo', color: 'bg-yellow-100 text-yellow-700' },
+interface PackageWithItinerary {
+  id: string
+  name: string
+  description: string | null
+  destination: string
+  duration_days: number
+  cover_image: string | null
+  price_estimate: number | null
+  difficulty_level: string | null
+  package_itinerary_items: Array<{
+    id: string
+    title: string
+    description: string | null
+    day_number: number
+    category: string
+    show_in_landing: boolean
+  }>
 }
 
-const currencySymbols: Record<string, string> = {
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-  JPY: '¥',
-  ARS: '$',
-  BRL: 'R$',
-  MXN: '$',
+interface PackagesSectionProps {
+  packages: PackageWithItinerary[]
 }
 
-export default function PackagesSection() {
+const difficultyLabels = {
+  easy: { label: 'Fácil', color: 'bg-green-100 text-green-700' },
+  moderate: { label: 'Moderado', color: 'bg-orange-100 text-orange-700' },
+  challenging: { label: 'Desafiante', color: 'bg-red-100 text-red-700' },
+}
+
+export default function PackagesSection({ packages }: PackagesSectionProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedContinent, setSelectedContinent] = useState<string>('all')
-  const [selectedType, setSelectedType] = useState<string>('all')
 
   const filteredPackages = packages.filter((pkg) => {
     const matchesSearch =
       pkg.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pkg.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pkg.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase()))
+      pkg.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (pkg.description && pkg.description.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    const matchesContinent =
-      selectedContinent === 'all' || pkg.continent === selectedContinent
-
-    const matchesType = selectedType === 'all' || pkg.type === selectedType
-
-    return matchesSearch && matchesContinent && matchesType
+    return matchesSearch
   })
-
-  const continents = [
-    { value: 'all', label: 'Todos los destinos' },
-    { value: 'Americas', label: 'América' },
-    { value: 'Europe', label: 'Europa' },
-    { value: 'Asia', label: 'Asia' },
-    { value: 'Africa', label: 'África' },
-    { value: 'Oceania', label: 'Oceanía' },
-  ]
 
   return (
     <section id="paquetes" className="container mx-auto px-4 py-20">
@@ -97,40 +92,13 @@ export default function PackagesSection() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
-              placeholder="Buscar por destino, país o actividad..."
+              placeholder="Buscar por destino o descripción..."
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
-
-        <Select value={selectedContinent} onValueChange={setSelectedContinent}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Continente" />
-          </SelectTrigger>
-          <SelectContent>
-            {continents.map((continent) => (
-              <SelectItem key={continent.value} value={continent.value}>
-                {continent.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={selectedType} onValueChange={setSelectedType}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Tipo de viaje" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los tipos</SelectItem>
-            <SelectItem value="adventure">🏔️ Aventura</SelectItem>
-            <SelectItem value="relax">🏖️ Relax</SelectItem>
-            <SelectItem value="cultural">🏛️ Cultural</SelectItem>
-            <SelectItem value="family">👨‍👩‍👧‍👦 Familiar</SelectItem>
-            <SelectItem value="luxury">💎 Lujo</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Results Count */}
@@ -142,8 +110,18 @@ export default function PackagesSection() {
       {/* Packages Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPackages.map((pkg) => {
-          const category = typeLabels[pkg.type]
-          const currencySymbol = currencySymbols[pkg.currency] || pkg.currency
+          // Get difficulty badge (if available)
+          const difficultyInfo = pkg.difficulty_level
+            ? difficultyLabels[pkg.difficulty_level as keyof typeof difficultyLabels]
+            : null
+
+          // Get highlights from itinerary items that should be shown on landing
+          const landingActivities = pkg.package_itinerary_items
+            .filter((item) => item.show_in_landing)
+            .slice(0, 4)
+
+          // Default cover image if none provided
+          const coverImage = pkg.cover_image || '/images/default-package.jpg'
 
           return (
             <Card
@@ -153,7 +131,7 @@ export default function PackagesSection() {
               {/* Image Header */}
               <div className="relative h-64 overflow-hidden">
                 <Image
-                  src={pkg.coverImage}
+                  src={coverImage}
                   alt={pkg.name}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-700"
@@ -163,15 +141,13 @@ export default function PackagesSection() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
                 {/* Badges on Image */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2">
-                  {pkg.popular && (
-                    <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg">
-                      <Star className="w-3 h-3 mr-1" />
-                      Popular
+                {difficultyInfo && (
+                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                    <Badge className={`${difficultyInfo.color} shadow-lg`}>
+                      {difficultyInfo.label}
                     </Badge>
-                  )}
-                  <Badge className={`${category.color} shadow-lg`}>{category.label}</Badge>
-                </div>
+                  </div>
+                )}
 
                 {/* Title on Image */}
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -180,22 +156,32 @@ export default function PackagesSection() {
                   </CardTitle>
                   <div className="flex items-center gap-2 text-white/90 text-sm">
                     <MapPin className="w-4 h-4" />
-                    <span>{pkg.country}</span>
+                    <span>{pkg.destination}</span>
                   </div>
                 </div>
               </div>
 
               <CardHeader className="relative pt-4 pb-2">
-                {/* Highlights */}
-                <div className="mb-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    {pkg.highlights.slice(0, 4).map((highlight, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs font-normal">
-                        {highlight}
-                      </Badge>
-                    ))}
+                {/* Description */}
+                {pkg.description && (
+                  <CardDescription className="line-clamp-2 mb-3">
+                    {pkg.description}
+                  </CardDescription>
+                )}
+
+                {/* Activity Highlights */}
+                {landingActivities.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs text-muted-foreground mb-1.5">Actividades incluidas:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {landingActivities.map((activity) => (
+                        <Badge key={activity.id} variant="outline" className="text-xs font-normal">
+                          {activity.title}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </CardHeader>
 
               <CardContent className="pt-0">
@@ -203,15 +189,7 @@ export default function PackagesSection() {
                 <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
                   <div className="flex items-center gap-2 text-gray-700">
                     <Calendar className="w-4 h-4 text-blue-600" />
-                    <span className="font-medium">{pkg.duration} días</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Users className="w-4 h-4 text-blue-600" />
-                    <span className="font-medium">{pkg.groupSize} pax</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{pkg.rating} / 5.0</span>
+                    <span className="font-medium">{pkg.duration_days} días</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-700">
                     <Clock className="w-4 h-4 text-blue-600" />
@@ -220,21 +198,22 @@ export default function PackagesSection() {
                 </div>
 
                 {/* Price */}
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div>
-                    <p className="text-sm text-gray-600">Desde</p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {currencySymbol}
-                      {pkg.price.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500">por persona</p>
+                {pkg.price_estimate && (
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <div>
+                      <p className="text-sm text-gray-600">Desde</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        ${pkg.price_estimate.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-500">precio estimado</p>
+                    </div>
+                    <Link href={`/paquetes/${pkg.id}`}>
+                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                        Ver más
+                      </Button>
+                    </Link>
                   </div>
-                  <Link href={`/paquetes/${pkg.slug}`}>
-                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                      Ver detalles
-                    </Button>
-                  </Link>
-                </div>
+                )}
               </CardContent>
             </Card>
           )
@@ -247,15 +226,8 @@ export default function PackagesSection() {
           <p className="text-gray-600 mb-4">
             No encontramos paquetes que coincidan con tu búsqueda
           </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearchQuery('')
-              setSelectedContinent('all')
-              setSelectedType('all')
-            }}
-          >
-            Limpiar filtros
+          <Button variant="outline" onClick={() => setSearchQuery('')}>
+            Limpiar búsqueda
           </Button>
         </div>
       )}

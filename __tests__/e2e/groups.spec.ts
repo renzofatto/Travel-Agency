@@ -6,21 +6,24 @@ test.describe('Group Management Flow', () => {
     await page.goto('/')
   })
 
-  test('should complete full group creation flow', async ({ page }) => {
+  test('should complete full group creation flow as admin', async ({ page }) => {
     // Start at home page
     await expect(page).toHaveTitle(/TravelHub/i)
 
-    // Navigate to login (assuming authentication is required)
+    // Navigate to login
     await page.click('text=Login')
     await expect(page).toHaveURL(/.*login/)
 
-    // Fill in login form (using test credentials)
-    await page.fill('input[name="email"]', 'test@example.com')
-    await page.fill('input[type="password"]', 'testpassword123')
+    // Fill in login form (using ADMIN test credentials)
+    await page.fill('input[name="email"]', 'admin@example.com')
+    await page.fill('input[type="password"]', 'adminpassword123')
     await page.click('button[type="submit"]')
 
     // Wait for redirect to dashboard
     await expect(page).toHaveURL(/.*dashboard/)
+
+    // Verify create group button is visible for admins
+    await expect(page.locator('text=/Create.*Group/i')).toBeVisible()
 
     // Click create group button
     await page.click('text=/Create.*Group/i')
@@ -30,8 +33,14 @@ test.describe('Group Management Flow', () => {
     await page.fill('input[name="name"]', 'E2E Test Trip to Tokyo')
     await page.fill('input[name="destination"]', 'Tokyo, Japan')
     await page.fill('textarea[name="description"]', 'An amazing trip to explore Tokyo and experience Japanese culture')
-    await page.fill('input[name="start_date"]', '2024-09-01')
-    await page.fill('input[name="end_date"]', '2024-09-10')
+    await page.fill('input[name="start_date"]', '2025-09-01')
+    await page.fill('input[name="end_date"]', '2025-09-10')
+
+    // Admin should see leader email field
+    await expect(page.locator('text=/Leader Email/i')).toBeVisible()
+
+    // Optionally fill in leader email
+    await page.fill('input[type="email"][placeholder*="leader"]', 'leader@example.com')
 
     // Submit the form
     await page.click('button:has-text("Create Group")')
@@ -42,6 +51,27 @@ test.describe('Group Management Flow', () => {
     // Verify group details are displayed
     await expect(page.locator('text=E2E Test Trip to Tokyo')).toBeVisible()
     await expect(page.locator('text=Tokyo, Japan')).toBeVisible()
+  })
+
+  test('should prevent non-admin users from creating groups', async ({ page }) => {
+    // Login as regular user (not admin)
+    await page.goto('/auth/login')
+    await page.fill('input[name="email"]', 'user@example.com')
+    await page.fill('input[type="password"]', 'userpassword123')
+    await page.click('button[type="submit"]')
+
+    // Wait for redirect to dashboard
+    await expect(page).toHaveURL(/.*dashboard/)
+
+    // Create group button should NOT be visible for non-admins
+    await expect(page.locator('text=/Create.*Group/i')).not.toBeVisible()
+
+    // Try to access create group page directly
+    await page.goto('/dashboard/groups/new')
+
+    // Should redirect back to dashboard
+    await expect(page).toHaveURL(/.*dashboard$/)
+    await expect(page).not.toHaveURL(/.*groups\/new/)
   })
 
   test('should show validation errors for invalid group data', async ({ page }) => {

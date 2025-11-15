@@ -484,6 +484,21 @@ travel-agency/
   - Visual differentiation: expenses (white bg), payments (blue bg)
   - Clear indication of user's financial status in the group
   - Stats cards for total expenses, payments, and transactions
+- **Admin-Only Group Creation** (2025-11-15)
+  - Only administrators can create groups (previously: any authenticated user)
+  - Admin creates group and optionally assigns a user as leader by email
+  - Leader can manage group members and all group features
+  - Regular users cannot create groups - must be added by leaders/admins
+  - Updated RLS policy: "Only admins can create groups"
+  - Modified createGroup action to verify admin role
+  - Added leader_email optional parameter to createGroup
+  - Updated GroupForm with leader email field (admins only)
+  - Updated dashboard UI to hide "Create Group" button from non-admins
+  - Protected /dashboard/groups/new route - redirects non-admins
+  - Different empty states for admins vs regular users
+  - Migration: supabase/migrations/restrict_group_creation_to_admins.sql
+  - Setup guide: ADMIN_GROUP_CREATION_SETUP.md
+  - Updated E2E tests to reflect admin-only creation
 
 ### 🚧 TO BE IMPLEMENTED (Phase 10+):
 - Drag & drop for itinerary reordering
@@ -651,6 +666,7 @@ When implementing features, test:
 - `PROFILE_SETUP.md` - Profile editing setup (2025-11-15)
 - `NOTES_MIGRATION.md` - Notes table migration (2025-11-15)
 - `STORAGE_SETUP_INSTRUCTIONS.md` - Storage configuration (2025-11-15)
+- `ADMIN_GROUP_CREATION_SETUP.md` - Admin-only group creation (2025-11-15)
 
 ## Common Patterns Implemented
 

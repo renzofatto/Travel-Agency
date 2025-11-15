@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import GroupList from '@/components/groups/group-list'
-import EmptyState from '@/components/groups/empty-state'
 import CreateGroupButton from '@/components/groups/create-group-button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -14,6 +13,15 @@ export default async function DashboardPage() {
   if (!user) {
     return null
   }
+
+  // Check if user is admin
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = userProfile?.role === 'admin'
 
   // Fetch groups where user is a member with member count and user role
   const { data: groups, error } = await supabase
@@ -90,15 +98,27 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">My Travel Groups</h1>
           <p className="text-gray-600 mt-1">
-            Manage your trips and collaborate with your travel buddies
+            {isAdmin
+              ? 'Create and manage travel groups for your users'
+              : 'View and manage your trips'}
           </p>
         </div>
-        {groupsWithCounts.length > 0 && <CreateGroupButton />}
+        {isAdmin && <CreateGroupButton />}
       </div>
 
       {/* Empty State */}
       {groupsWithCounts.length === 0 ? (
-        <EmptyState />
+        isAdmin ? (
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <p className="text-gray-600 mb-4">No groups yet. Create one to get started!</p>
+            <CreateGroupButton />
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <p className="text-gray-600">You are not a member of any groups yet.</p>
+            <p className="text-gray-500 text-sm mt-2">Contact an administrator to be added to a group.</p>
+          </div>
+        )
       ) : (
         <>
           {/* Stats */}

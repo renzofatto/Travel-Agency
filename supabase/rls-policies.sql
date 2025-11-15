@@ -75,10 +75,10 @@ CREATE POLICY "Users can view their groups"
     is_group_member(auth.uid(), id)
   );
 
--- Any authenticated user can create groups
-CREATE POLICY "Authenticated users can create groups"
+-- Only admins can create groups
+CREATE POLICY "Only admins can create groups"
   ON public.travel_groups FOR INSERT
-  WITH CHECK (auth.uid() IS NOT NULL);
+  WITH CHECK (is_admin(auth.uid()));
 
 -- Admins and group leaders can update groups
 CREATE POLICY "Admins and leaders can update groups"

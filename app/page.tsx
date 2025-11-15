@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import PackagesSection from '@/components/packages/packages-section'
+import { createClient } from '@/lib/supabase/server'
 import {
   Plane,
   Users,
@@ -23,7 +24,32 @@ import {
   Clock,
 } from 'lucide-react'
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetch featured packages from Supabase
+  const supabase = await createClient()
+  const { data: packages } = await supabase
+    .from('travel_packages')
+    .select(`
+      id,
+      name,
+      description,
+      destination,
+      duration_days,
+      cover_image,
+      price_estimate,
+      difficulty_level,
+      package_itinerary_items (
+        id,
+        title,
+        description,
+        day_number,
+        category,
+        show_in_landing
+      )
+    `)
+    .eq('is_featured', true)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
@@ -330,7 +356,7 @@ export default function HomePage() {
       </section>
 
       {/* Travel Packages Section */}
-      <PackagesSection />
+      <PackagesSection packages={packages || []} />
 
       {/* Destination Showcase Divider */}
       <section className="relative h-[60vh] my-20 overflow-hidden">

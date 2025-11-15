@@ -1,39 +1,33 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { getPackageBySlug } from '@/lib/data/packages'
+import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import ItineraryRouteMap from '@/components/packages/itinerary-map'
 import {
   ArrowLeft,
   Calendar,
   Users,
   Star,
-  Check,
-  X,
   MapPin,
   Clock,
   DollarSign,
+  CheckCircle2,
 } from 'lucide-react'
 
-const typeLabels = {
-  adventure: { label: 'Aventura', color: 'bg-orange-100 text-orange-700' },
-  relax: { label: 'Relax', color: 'bg-blue-100 text-blue-700' },
-  cultural: { label: 'Cultural', color: 'bg-purple-100 text-purple-700' },
-  family: { label: 'Familiar', color: 'bg-green-100 text-green-700' },
-  luxury: { label: 'Lujo', color: 'bg-yellow-100 text-yellow-700' },
+const difficultyLabels = {
+  easy: { label: 'Fácil', color: 'bg-green-100 text-green-700' },
+  moderate: { label: 'Moderado', color: 'bg-orange-100 text-orange-700' },
+  challenging: { label: 'Desafiante', color: 'bg-red-100 text-red-700' },
 }
 
-const currencySymbols: Record<string, string> = {
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-  JPY: '¥',
-  ARS: '$',
-  BRL: 'R$',
-  MXN: '$',
+const categoryEmojis: Record<string, string> = {
+  transport: '🚗',
+  accommodation: '🏨',
+  activity: '🎯',
+  food: '🍽️',
+  other: '📌',
 }
 
 export default async function PackageDetailPage({
@@ -42,21 +36,64 @@ export default async function PackageDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const pkg = getPackageBySlug(id)
+  const supabase = await createClient()
 
-  if (!pkg) {
+  // Fetch package with itinerary items
+  const { data: pkg, error } = await supabase
+    .from('travel_packages')
+    .select(`
+      id,
+      name,
+      description,
+      destination,
+      duration_days,
+      cover_image,
+      price_estimate,
+      difficulty_level,
+      is_featured,
+      package_itinerary_items (
+        id,
+        title,
+        description,
+        day_number,
+        start_time,
+        end_time,
+        location,
+        category,
+        order_index
+      )
+    `)
+    .eq('id', id)
+    .eq('is_active', true)
+    .single()
+
+  if (error || !pkg) {
     notFound()
   }
 
-  const category = typeLabels[pkg.type]
-  const currencySymbol = currencySymbols[pkg.currency] || pkg.currency
+  // Group itinerary items by day
+  const itemsByDay: Record<number, typeof pkg.package_itinerary_items> = {}
+  pkg.package_itinerary_items
+    .sort((a, b) => a.day_number - b.day_number || a.order_index - b.order_index)
+    .forEach((item) => {
+      if (!itemsByDay[item.day_number]) {
+        itemsByDay[item.day_number] = []
+      }
+      itemsByDay[item.day_number].push(item)
+    })
+
+  const difficultyInfo = pkg.difficulty_level
+    ? difficultyLabels[pkg.difficulty_level as keyof typeof difficultyLabels]
+    : null
+
+  const coverImage = pkg.cover_image || '/images/default-package.jpg'
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Hero Image with Overlay */}
       <div className="relative h-[70vh] overflow-hidden">
         <Image
-          src={pkg.coverImage}
+          src={coverImage}
           alt={pkg.name}
           fill
           className="object-cover"
@@ -81,11 +118,15 @@ export default async function PackageDetailPage({
           <div className="container mx-auto px-4 pb-16">
             {/* Badges */}
             <div className="flex items-center gap-2 mb-4">
-              <Badge className={`${category.color} shadow-lg`}>{category.label}</Badge>
-              {pkg.popular && (
+              {difficultyInfo && (
+                <Badge className={`${difficultyInfo.color} shadow-lg`}>
+                  {difficultyInfo.label}
+                </Badge>
+              )}
+              {pkg.is_featured && (
                 <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg">
                   <Star className="w-3 h-3 mr-1" />
-                  Popular
+                  Destacado
                 </Badge>
               )}
             </div>
@@ -99,30 +140,28 @@ export default async function PackageDetailPage({
             <div className="flex flex-wrap items-center gap-6 mb-6 text-white/90 text-lg">
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5" />
-                <span className="font-medium">{pkg.country}</span>
+                <span className="font-medium">{pkg.destination}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                <span className="font-medium">{pkg.duration} días</span>
+                <span className="font-medium">{pkg.duration_days} días</span>
               </div>
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                <span className="font-medium">{pkg.groupSize} personas</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{pkg.rating} / 5.0</span>
+                <Clock className="w-5 h-5" />
+                <span className="font-medium">Todo incluido</span>
               </div>
             </div>
 
             {/* Price */}
-            <div className="inline-block bg-white/10 backdrop-blur-md rounded-2xl px-8 py-4 border border-white/20">
-              <p className="text-white/80 text-sm mb-1">Desde</p>
-              <p className="text-white text-4xl font-bold">
-                {currencySymbol}{pkg.price.toLocaleString()}
-                <span className="text-lg font-normal text-white/80 ml-2">por persona</span>
-              </p>
-            </div>
+            {pkg.price_estimate && (
+              <div className="inline-block bg-white/10 backdrop-blur-md rounded-2xl px-8 py-4 border border-white/20">
+                <p className="text-white/80 text-sm mb-1">Desde</p>
+                <p className="text-white text-4xl font-bold">
+                  ${pkg.price_estimate.toLocaleString()}
+                  <span className="text-lg font-normal text-white/80 ml-2">precio estimado</span>
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -133,268 +172,257 @@ export default async function PackageDetailPage({
           {/* Main Content - 2 columns */}
           <div className="lg:col-span-2 space-y-12">
             {/* Description */}
-            <div>
-              <h2 className="text-3xl font-bold mb-4 text-gray-900">Sobre este viaje</h2>
-              <p className="text-xl text-gray-700 leading-relaxed">
-                {pkg.description}
-              </p>
-            </div>
-
-            {/* Highlights */}
-            <div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">Destinos incluidos</h3>
-              <div className="flex flex-wrap gap-2">
-                {pkg.highlights.map((highlight, idx) => (
-                  <Badge key={idx} variant="outline" className="text-base py-2 px-4">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    {highlight}
-                  </Badge>
-                ))}
+            {pkg.description && (
+              <div>
+                <h2 className="text-3xl font-bold mb-4 text-gray-900">Sobre este viaje</h2>
+                <p className="text-xl text-gray-700 leading-relaxed">
+                  {pkg.description}
+                </p>
               </div>
-            </div>
+            )}
 
-            {/* Gallery */}
-            <div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-900">Galería</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {pkg.gallery.map((imageUrl, idx) => (
-                  <div
-                    key={idx}
-                    className="aspect-square relative rounded-xl overflow-hidden group cursor-pointer"
-                  >
-                    <Image
-                      src={imageUrl}
-                      alt={`${pkg.name} - Image ${idx + 1}`}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 768px) 50vw, 33vw"
-                    />
+            {/* Quick Info Card */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  Información del Paquete
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
+                    <Calendar className="w-8 h-8 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Duración</p>
+                      <p className="font-semibold text-lg">{pkg.duration_days} días</p>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-lg">
+                    <Clock className="w-8 h-8 text-purple-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Tipo</p>
+                      <p className="font-semibold text-lg">Todo incluido</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Itinerary */}
+            {Object.keys(itemsByDay).length > 0 && (
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-blue-600" />
+                    Itinerario Día a Día
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {Object.keys(itemsByDay)
+                      .map(Number)
+                      .sort((a, b) => a - b)
+                      .map((day) => (
+                        <div key={day} className="border-l-4 border-blue-600 pl-6 pb-6 last:pb-0">
+                          <div className="flex items-center gap-3 mb-4 -ml-9">
+                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                              {day}
+                            </div>
+                            <h3 className="text-xl font-semibold">Día {day}</h3>
+                          </div>
+
+                          <div className="space-y-4">
+                            {itemsByDay[day].map((item) => (
+                              <div
+                                key={item.id}
+                                className="bg-white p-4 rounded-lg border hover:shadow-md transition-shadow"
+                              >
+                                <div className="flex items-start gap-3">
+                                  <span className="text-3xl">{categoryEmojis[item.category]}</span>
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
+                                    {item.description && (
+                                      <p className="text-gray-600 text-sm mb-2">
+                                        {item.description}
+                                      </p>
+                                    )}
+                                    <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                                      {item.start_time && (
+                                        <div className="flex items-center gap-1">
+                                          <Clock className="w-4 h-4" />
+                                          <span>
+                                            {item.start_time}
+                                            {item.end_time && ` - ${item.end_time}`}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {item.location && (
+                                        <div className="flex items-center gap-1">
+                                          <MapPin className="w-4 h-4" />
+                                          <span>{item.location}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* What's Included */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  ¿Qué incluye?
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Alojamiento</p>
+                      <p className="text-sm text-gray-600">Hoteles seleccionados</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Transporte</p>
+                      <p className="text-sm text-gray-600">Traslados incluidos</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Actividades</p>
+                      <p className="text-sm text-gray-600">Según itinerario</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Asistencia</p>
+                      <p className="text-sm text-gray-600">Soporte 24/7</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Sidebar - 1 column */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-              {/* Booking Card */}
-              <Card className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-0 shadow-2xl">
-                <CardContent className="pt-8 pb-8">
-                  <div className="text-center mb-6">
-                    <p className="text-white/80 text-sm mb-2">Desde</p>
-                    <p className="text-5xl font-bold mb-1">
-                      {currencySymbol}{pkg.price.toLocaleString()}
-                    </p>
-                    <p className="text-white/80">por persona</p>
-                  </div>
-                  <Link href="/auth/register">
-                    <Button size="lg" className="w-full bg-white text-blue-600 hover:bg-gray-100 text-lg font-semibold">
-                      Reservar Ahora
-                    </Button>
-                  </Link>
-                  <p className="text-xs text-center mt-4 text-white/75">
-                    ✓ Sin tarjeta · ✓ Pago flexible · ✓ Cancelación gratuita
-                  </p>
+              {/* Pricing Card */}
+              <Card className="border-0 shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5" />
+                    Precio del Paquete
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {pkg.price_estimate ? (
+                    <>
+                      <div className="text-center mb-6">
+                        <p className="text-gray-600 mb-2">Desde</p>
+                        <p className="text-5xl font-bold text-blue-600 mb-2">
+                          ${pkg.price_estimate.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-600">precio estimado por persona</p>
+                      </div>
+
+                      <div className="space-y-3 mb-6">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Duración</span>
+                          <span className="font-semibold">{pkg.duration_days} días</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Destino</span>
+                          <span className="font-semibold">{pkg.destination}</span>
+                        </div>
+                        {difficultyInfo && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Dificultad</span>
+                            <Badge className={difficultyInfo.color}>
+                              {difficultyInfo.label}
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      <Link href="/auth/register" className="w-full">
+                        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg py-6">
+                          Reservar Este Paquete
+                        </Button>
+                      </Link>
+
+                      <p className="text-xs text-center text-gray-500 mt-4">
+                        *El precio final puede variar según fechas y disponibilidad
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-center mb-6">
+                        <p className="text-gray-600 mb-2">Precio</p>
+                        <p className="text-2xl font-bold text-gray-800 mb-2">
+                          Consultar disponibilidad
+                        </p>
+                      </div>
+
+                      <Link href="/auth/register" className="w-full">
+                        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg py-6">
+                          Solicitar Información
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
-              {/* Quick Info */}
-              <Card>
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Calendar className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="text-sm text-gray-500">Duración</p>
-                      <p className="font-semibold">{pkg.duration} días</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
+              {/* Contact Card */}
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <Users className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="text-sm text-gray-500">Tamaño del grupo</p>
-                      <p className="font-semibold">{pkg.groupSize} personas</p>
+                    ¿Necesitas ayuda?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-gray-600">
+                    Nuestros expertos están listos para ayudarte a personalizar este paquete
+                    según tus necesidades.
+                  </p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <span>Asesoramiento personalizado</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <span>Modificaciones sin cargo</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <span>Respuesta en 24 horas</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    <div>
-                      <p className="text-sm text-gray-500">Rating</p>
-                      <p className="font-semibold">{pkg.rating} / 5.0</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Clock className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="text-sm text-gray-500">Modalidad</p>
-                      <p className="font-semibold">Todo incluido</p>
-                    </div>
-                  </div>
+                  <Button variant="outline" className="w-full mt-4">
+                    Contactar a un Experto
+                  </Button>
                 </CardContent>
               </Card>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Itinerary Section - Enhanced with Map and Images */}
-      <section className="bg-gradient-to-b from-gray-50 to-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 text-gray-900">
-              Tu aventura día a día
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Descubre el itinerario completo con mapa interactivo de la ruta
-            </p>
-          </div>
-
-          {/* Interactive Route Map */}
-          <div className="mb-16">
-            <ItineraryRouteMap days={pkg.itinerary} />
-          </div>
-
-          {/* Timeline with Images */}
-          <div className="max-w-6xl mx-auto">
-            {pkg.itinerary.map((day, idx) => (
-              <div key={day.day} className="relative">
-                {/* Connecting Line */}
-                {idx < pkg.itinerary.length - 1 && (
-                  <div className="absolute left-1/2 top-24 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-blue-300 transform -translate-x-1/2 z-0" />
-                )}
-
-                {/* Day Card */}
-                <div className={`flex items-center gap-8 mb-12 ${idx % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
-                  {/* Image Side */}
-                  <div className="flex-1">
-                    <div className="relative h-80 rounded-2xl overflow-hidden shadow-2xl group">
-                      {day.image && (
-                        <Image
-                          src={day.image}
-                          alt={day.title}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-700"
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                        />
-                      )}
-                      {!day.image && (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center">
-                          <span className="text-8xl">📍</span>
-                        </div>
-                      )}
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-                      {/* Day number badge on image */}
-                      <div className="absolute top-6 left-6">
-                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl">
-                          <span className="text-2xl font-bold text-blue-600">
-                            {day.day}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Location badge */}
-                      {day.location && (
-                        <div className="absolute bottom-6 left-6 right-6">
-                          <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 inline-flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-blue-600" />
-                            <span className="font-medium text-gray-900">{day.location.name}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Content Side */}
-                  <div className="flex-1">
-                    <Card className="border-2 border-blue-100 shadow-xl hover:shadow-2xl transition-all">
-                      <CardHeader>
-                        <div className="flex items-center gap-3 mb-3">
-                          <Badge className="bg-blue-600 text-white text-base px-4 py-1">
-                            Día {day.day}
-                          </Badge>
-                          {day.location && (
-                            <Badge variant="outline" className="text-sm">
-                              <MapPin className="w-3 h-3 mr-1" />
-                              {day.location.name}
-                            </Badge>
-                          )}
-                        </div>
-                        <CardTitle className="text-2xl text-gray-900 mb-3">
-                          {day.title}
-                        </CardTitle>
-                        <p className="text-gray-600 leading-relaxed">
-                          {day.description}
-                        </p>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <p className="text-sm font-semibold text-gray-700 mb-3">
-                            Actividades incluidas:
-                          </p>
-                          {day.activities.map((activity, actIdx) => (
-                            <div
-                              key={actIdx}
-                              className="flex items-center gap-3 text-gray-700"
-                            >
-                              <Check className="w-5 h-5 text-green-600 flex-shrink-0" />
-                              <span>{activity}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Included/Not Included Section */}
-      <section className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Included */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl text-green-700">
-                <Check className="w-6 h-6 inline mr-2" />
-                Incluido en el paquete
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {pkg.included.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* Not Included */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl text-orange-700">
-                <X className="w-6 h-6 inline mr-2" />
-                No incluido
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {pkg.notIncluded.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <X className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-700">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </section>
 

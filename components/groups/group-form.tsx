@@ -24,14 +24,16 @@ import { createGroup, updateGroup, uploadGroupCover } from '@/lib/actions/group-
 interface GroupFormProps {
   mode: 'create' | 'edit'
   defaultValues?: CreateGroupInput & { id?: string }
+  isAdmin?: boolean
 }
 
-export default function GroupForm({ mode, defaultValues }: GroupFormProps) {
+export default function GroupForm({ mode, defaultValues, isAdmin = false }: GroupFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [coverImageUrl, setCoverImageUrl] = useState(defaultValues?.cover_image || '')
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
+  const [leaderEmail, setLeaderEmail] = useState('')
 
   const form = useForm<CreateGroupInput>({
     resolver: zodResolver(createGroupSchema),
@@ -100,7 +102,7 @@ export default function GroupForm({ mode, defaultValues }: GroupFormProps) {
 
       // Create or update group
       if (mode === 'create') {
-        const result = await createGroup(data)
+        const result = await createGroup({ ...data, leader_email: leaderEmail || undefined })
         if (result?.error) {
           toast.error(result.error)
           setIsSubmitting(false)
@@ -196,6 +198,25 @@ export default function GroupForm({ mode, defaultValues }: GroupFormProps) {
             </FormItem>
           )}
         />
+
+        {/* Leader Email - Only shown for admins creating groups */}
+        {mode === 'create' && isAdmin && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none">
+              Leader Email (Optional)
+            </label>
+            <Input
+              type="email"
+              placeholder="e.g., leader@example.com"
+              value={leaderEmail}
+              onChange={(e) => setLeaderEmail(e.target.value)}
+            />
+            <p className="text-[0.8rem] text-muted-foreground">
+              Email of the user who will be the group leader. They must be registered first.
+              Leave empty to add a leader later.
+            </p>
+          </div>
+        )}
 
         {/* Description */}
         <FormField

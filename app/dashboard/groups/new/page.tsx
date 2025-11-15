@@ -15,6 +15,20 @@ export default async function NewGroupPage() {
     redirect('/auth/login')
   }
 
+  // Check if user is admin
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = userProfile?.role === 'admin'
+
+  // Only admins can create groups
+  if (!isAdmin) {
+    redirect('/dashboard')
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header */}
@@ -28,13 +42,13 @@ export default async function NewGroupPage() {
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Create New Group</h1>
         <p className="text-gray-600 mt-2">
-          Start planning your next adventure with friends and family
+          As an administrator, create a new travel group and assign a leader
         </p>
       </div>
 
       {/* Form */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <GroupForm mode="create" />
+        <GroupForm mode="create" isAdmin={isAdmin} />
       </div>
     </div>
   )

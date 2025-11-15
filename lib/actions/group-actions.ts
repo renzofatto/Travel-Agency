@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 import { createGroupSchema, editGroupSchema } from '@/lib/validations/group'
 import type { CreateGroupInput, EditGroupInput } from '@/lib/validations/group'
 
-export async function createGroup(data: CreateGroupInput) {
+export async function createGroup(data: CreateGroupInput & { leader_email?: string }) {
   const supabase = await createClient()
 
   // Get current user
@@ -19,32 +19,21 @@ export async function createGroup(data: CreateGroupInput) {
     return { error: 'Unauthorized' }
   }
 
+  // Check if user is admin
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (userProfile?.role !== 'admin') {
+    return { error: 'Only administrators can create groups' }
+  }
+
   // Validate input
   const validation = createGroupSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
-  }
-
-  // Ensure user profile exists
-  const { data: userProfile, error: profileError } = await supabase
-    .from('users')
-    .select('id')
-    .eq('id', user.id)
-    .single()
-
-  if (profileError || !userProfile) {
-    // Create user profile if it doesn't exist
-    const { error: createProfileError } = await supabase.from('users').insert({
-      id: user.id,
-      email: user.email!,
-      full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-      role: 'user',
-    })
-
-    if (createProfileError) {
-      console.error('Error creating user profile:', createProfileError)
-      return { error: 'Failed to create user profile. Please try again.' }
-    }
   }
 
   // Create group
@@ -67,21 +56,39 @@ export async function createGroup(data: CreateGroupInput) {
     return { error: `Failed to create group: ${groupError.message}` }
   }
 
-  // Add creator as leader
-  const { error: memberError } = await supabase.from('group_members').insert({
-    group_id: group.id,
-    user_id: user.id,
-    role: 'leader',
-  })
+  // If leader_email is provided, add that user as leader
+  // Otherwise, no members are added yet (admin can add later)
+  if (data.leader_email) {
+    // Find user by email
+    const { data: leaderUser, error: leaderError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', data.leader_email)
+      .single()
 
-  if (memberError) {
-    console.error('Error adding creator as leader:', memberError)
-    // Rollback: delete the group
-    await supabase.from('travel_groups').delete().eq('id', group.id)
-    return { error: 'Failed to create group. Please try again.' }
+    if (leaderError || !leaderUser) {
+      // Rollback: delete the group
+      await supabase.from('travel_groups').delete().eq('id', group.id)
+      return { error: 'User with that email not found. Please ensure the user has registered first.' }
+    }
+
+    // Add user as leader
+    const { error: memberError } = await supabase.from('group_members').insert({
+      group_id: group.id,
+      user_id: leaderUser.id,
+      role: 'leader',
+    })
+
+    if (memberError) {
+      console.error('Error adding leader:', memberError)
+      // Rollback: delete the group
+      await supabase.from('travel_groups').delete().eq('id', group.id)
+      return { error: 'Failed to add leader to group. Please try again.' }
+    }
   }
 
   revalidatePath('/dashboard')
+  revalidatePath('/admin/groups')
   redirect(`/groups/${group.id}`)
 }
 
