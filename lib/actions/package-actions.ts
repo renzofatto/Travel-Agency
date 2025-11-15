@@ -171,6 +171,55 @@ export async function togglePackageActive(packageId: string, isActive: boolean) 
 // PACKAGE ITINERARY ITEM OPERATIONS
 // ============================================
 
+// Upload itinerary item image
+export async function uploadItineraryItemImage(formData: FormData) {
+  const { user, error: adminError } = await checkIsAdmin()
+  if (adminError) return { error: adminError }
+
+  const supabase = await createClient()
+
+  // Get file from formData
+  const file = formData.get('file') as File
+  if (!file) {
+    return { error: 'No file provided' }
+  }
+
+  // Validate file type
+  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  if (!validTypes.includes(file.type)) {
+    return { error: 'Invalid file type. Please upload a JPG, PNG, or WEBP image.' }
+  }
+
+  // Validate file size (max 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    return { error: 'File too large. Maximum size is 10MB.' }
+  }
+
+  // Generate unique filename
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${user.id}/${Date.now()}.${fileExt}`
+
+  // Upload to Supabase Storage
+  const { error: uploadError } = await supabase.storage
+    .from('itinerary-item-images')
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: false,
+    })
+
+  if (uploadError) {
+    console.error('Error uploading image:', uploadError)
+    return { error: 'Failed to upload image. Please try again.' }
+  }
+
+  // Get public URL
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('itinerary-item-images').getPublicUrl(fileName)
+
+  return { success: true, url: publicUrl }
+}
+
 export async function createPackageItineraryItem(data: CreatePackageItineraryItemInput) {
   const { error: adminError } = await checkIsAdmin()
   if (adminError) return { error: adminError }
@@ -194,9 +243,12 @@ export async function createPackageItineraryItem(data: CreatePackageItineraryIte
       start_time: data.start_time || null,
       end_time: data.end_time || null,
       location: data.location || null,
+      latitude: data.latitude || null,
+      longitude: data.longitude || null,
+      image_url: data.image_url || null,
       category: data.category,
       order_index: data.order_index,
-      show_in_landing: data.show_in_landing !== undefined ? data.show_in_landing : true, // NEW
+      show_in_landing: data.show_in_landing !== undefined ? data.show_in_landing : true,
     })
     .select()
     .single()
@@ -232,9 +284,12 @@ export async function updatePackageItineraryItem(data: UpdatePackageItineraryIte
       start_time: data.start_time || null,
       end_time: data.end_time || null,
       location: data.location || null,
+      latitude: data.latitude || null,
+      longitude: data.longitude || null,
+      image_url: data.image_url || null,
       category: data.category,
       order_index: data.order_index,
-      show_in_landing: data.show_in_landing !== undefined ? data.show_in_landing : true, // NEW
+      show_in_landing: data.show_in_landing !== undefined ? data.show_in_landing : true,
     })
     .eq('id', data.id)
 

@@ -31,9 +31,12 @@ export const packageItineraryItemBaseSchema = z
     start_time: z.string().optional(), // Format: "HH:MM"
     end_time: z.string().optional(), // Format: "HH:MM"
     location: z.string().max(200, 'Location must be less than 200 characters').optional(),
+    latitude: z.number().min(-90).max(90).optional(), // Latitude coordinate
+    longitude: z.number().min(-180).max(180).optional(), // Longitude coordinate
+    image_url: z.string().url().optional().or(z.literal('')), // Image URL
     category: packageItemCategoryEnum,
     order_index: z.number().int().min(0).default(0),
-    show_in_landing: z.boolean().optional().default(true), // NEW: Show in landing page
+    show_in_landing: z.boolean().optional().default(true), // Show in landing page
   })
   .refine(
     (data) => {

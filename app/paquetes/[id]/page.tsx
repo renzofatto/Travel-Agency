@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import RouteMap from '@/components/packages/route-map'
 import {
   ArrowLeft,
   Calendar,
@@ -59,6 +60,9 @@ export default async function PackageDetailPage({
         start_time,
         end_time,
         location,
+        latitude,
+        longitude,
+        image_url,
         category,
         order_index
       )
@@ -236,33 +240,49 @@ export default async function PackageDetailPage({
                             {itemsByDay[day].map((item) => (
                               <div
                                 key={item.id}
-                                className="bg-white p-4 rounded-lg border hover:shadow-md transition-shadow"
+                                className="bg-white rounded-lg border hover:shadow-md transition-shadow overflow-hidden"
                               >
-                                <div className="flex items-start gap-3">
-                                  <span className="text-3xl">{categoryEmojis[item.category]}</span>
-                                  <div className="flex-1">
-                                    <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
-                                    {item.description && (
-                                      <p className="text-gray-600 text-sm mb-2">
-                                        {item.description}
-                                      </p>
-                                    )}
-                                    <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-                                      {item.start_time && (
-                                        <div className="flex items-center gap-1">
-                                          <Clock className="w-4 h-4" />
-                                          <span>
-                                            {item.start_time}
-                                            {item.end_time && ` - ${item.end_time}`}
-                                          </span>
-                                        </div>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                  {/* Image side */}
+                                  {item.image_url && (
+                                    <div className="relative h-48 md:h-full min-h-[200px]">
+                                      <Image
+                                        src={item.image_url}
+                                        alt={item.title}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                      />
+                                    </div>
+                                  )}
+
+                                  {/* Content side */}
+                                  <div className={`p-4 flex items-start gap-3 ${!item.image_url ? 'md:col-span-2' : ''}`}>
+                                    <span className="text-3xl flex-shrink-0">{categoryEmojis[item.category]}</span>
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
+                                      {item.description && (
+                                        <p className="text-gray-600 text-sm mb-2">
+                                          {item.description}
+                                        </p>
                                       )}
-                                      {item.location && (
-                                        <div className="flex items-center gap-1">
-                                          <MapPin className="w-4 h-4" />
-                                          <span>{item.location}</span>
-                                        </div>
-                                      )}
+                                      <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                                        {item.start_time && (
+                                          <div className="flex items-center gap-1">
+                                            <Clock className="w-4 h-4" />
+                                            <span>
+                                              {item.start_time}
+                                              {item.end_time && ` - ${item.end_time}`}
+                                            </span>
+                                          </div>
+                                        )}
+                                        {item.location && (
+                                          <div className="flex items-center gap-1">
+                                            <MapPin className="w-4 h-4" />
+                                            <span>{item.location}</span>
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -274,6 +294,17 @@ export default async function PackageDetailPage({
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Route Map */}
+            {pkg.package_itinerary_items.some((item) => item.latitude && item.longitude) && (
+              <div>
+                <h2 className="text-3xl font-bold mb-4 text-gray-900 flex items-center gap-2">
+                  <MapPin className="w-8 h-8 text-blue-600" />
+                  Mapa de la Ruta
+                </h2>
+                <RouteMap items={pkg.package_itinerary_items} />
+              </div>
             )}
 
             {/* What's Included */}
