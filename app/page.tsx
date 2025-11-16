@@ -72,6 +72,14 @@ export default async function HomePage() {
     .eq('is_featured', true)
     .eq('is_active', true)
     .order('created_at', { ascending: false })
+
+  // Map destinations to package IDs for the hero collage
+  const destinationPackages = {
+    'París, Francia': packages?.find(p => p.destination === 'París, Francia'),
+    'Bali, Indonesia': packages?.find(p => p.destination === 'Bali, Indonesia'),
+    'Tokio, Japón': packages?.find(p => p.destination === 'Tokio, Japón'),
+    'Santorini, Grecia': packages?.find(p => p.destination === 'Santorini, Grecia'),
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Floating particles background */}
@@ -153,7 +161,10 @@ export default async function HomePage() {
             <div className="relative hidden lg:block">
               <div className="grid grid-cols-2 gap-4">
                 {/* Paris */}
-                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-blue-500/50 transition-all duration-500 hover:scale-105">
+                <Link
+                  href={destinationPackages['París, Francia'] ? `/paquetes/${destinationPackages['París, Francia'].id}` : '#paquetes'}
+                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-blue-500/50 transition-all duration-500 hover:scale-105 block"
+                >
                   <Image
                     src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80"
                     alt="París"
@@ -176,10 +187,13 @@ export default async function HomePage() {
                       <span className="text-white/90 text-sm font-semibold">Desde $1,200</span>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Bali */}
-                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-purple-500/50 transition-all duration-500 hover:scale-105 mt-8">
+                <Link
+                  href={destinationPackages['Bali, Indonesia'] ? `/paquetes/${destinationPackages['Bali, Indonesia'].id}` : '#paquetes'}
+                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-purple-500/50 transition-all duration-500 hover:scale-105 mt-8 block"
+                >
                   <Image
                     src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80"
                     alt="Bali"
@@ -202,10 +216,13 @@ export default async function HomePage() {
                       <span className="text-white/90 text-sm font-semibold">Desde $950</span>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Tokio */}
-                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-pink-500/50 transition-all duration-500 hover:scale-105">
+                <Link
+                  href={destinationPackages['Tokio, Japón'] ? `/paquetes/${destinationPackages['Tokio, Japón'].id}` : '#paquetes'}
+                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-pink-500/50 transition-all duration-500 hover:scale-105 block"
+                >
                   <Image
                     src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80"
                     alt="Tokio"
@@ -228,10 +245,13 @@ export default async function HomePage() {
                       <span className="text-white/90 text-sm font-semibold">Desde $1,400</span>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Santorini */}
-                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-cyan-500/50 transition-all duration-500 hover:scale-105 mt-8">
+                <Link
+                  href={destinationPackages['Santorini, Grecia'] ? `/paquetes/${destinationPackages['Santorini, Grecia'].id}` : '#paquetes'}
+                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-cyan-500/50 transition-all duration-500 hover:scale-105 mt-8 block"
+                >
                   <Image
                     src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800&q=80"
                     alt="Santorini"
@@ -254,7 +274,7 @@ export default async function HomePage() {
                       <span className="text-white/90 text-sm font-semibold">Desde $1,100</span>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
 
               {/* Floating badge */}
