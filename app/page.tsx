@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import PackagesSection from '@/components/packages/packages-section'
 import LandingNavbar from '@/components/layout/landing-navbar'
+import InfiniteDestinationsScroll from '@/components/infinite-destinations-scroll'
 import { createClient } from '@/lib/supabase/server'
 import {
   Plane,
@@ -49,6 +50,28 @@ export default async function HomePage() {
     userProfile = { ...user, ...profile }
   }
 
+  // Fetch packages for infinite scroll section
+  const { data: scrollPackages } = await supabase
+    .from('travel_packages')
+    .select(`
+      id,
+      name,
+      description,
+      destination,
+      duration_days,
+      cover_image,
+      price_estimate,
+      category,
+      short_description,
+      continent,
+      gradient_colors
+    `)
+    .eq('show_in_scroll', true)
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+    .order('created_at', { ascending: false })
+
+  // Fetch packages for featured/hero sections
   const { data: packages } = await supabase
     .from('travel_packages')
     .select(`
@@ -73,13 +96,21 @@ export default async function HomePage() {
     .eq('is_active', true)
     .order('created_at', { ascending: false })
 
-  // Map destinations to package IDs for the hero collage
-  const destinationPackages = {
-    'París, Francia': packages?.find(p => p.destination === 'París, Francia'),
-    'Bali, Indonesia': packages?.find(p => p.destination === 'Bali, Indonesia'),
-    'Tokio, Japón': packages?.find(p => p.destination === 'Tokio, Japón'),
-    'Santorini, Grecia': packages?.find(p => p.destination === 'Santorini, Grecia'),
-  }
+  // Fetch packages for hero section
+  const { data: heroPackages } = await supabase
+    .from('travel_packages')
+    .select(`
+      id,
+      name,
+      destination,
+      cover_image,
+      price_estimate,
+      short_description
+    `)
+    .eq('show_in_hero', true)
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+    .limit(4) // Show max 4 in hero collage
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Floating particles background */}
@@ -157,124 +188,45 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Destination Collage */}
-            <div className="relative hidden lg:block">
-              <div className="grid grid-cols-2 gap-4">
-                {/* Paris */}
-                <Link
-                  href={destinationPackages['París, Francia'] ? `/paquetes/${destinationPackages['París, Francia'].id}` : '#paquetes'}
-                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-blue-500/50 transition-all duration-500 hover:scale-105 block"
-                >
-                  <Image
-                    src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80"
-                    alt="París"
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    sizes="(max-width: 1024px) 100vw, 400px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-purple-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4 text-blue-400" />
-                      <span className="text-xs font-bold text-blue-400 tracking-wider uppercase">Europa</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">París</h3>
-                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      Ciudad del amor y la luz
-                    </p>
-                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                      <span className="text-white/90 text-sm font-semibold">Desde $1,200</span>
-                    </div>
-                  </div>
-                </Link>
+            {/* Destination Collage - Dynamic from Supabase */}
+            {heroPackages && heroPackages.length > 0 && (
+              <div className="relative hidden lg:block">
+                <div className="grid grid-cols-2 gap-4">
+                {heroPackages.map((pkg, index) => {
+                  const cityName = pkg.destination.split(',')[0]?.trim() || pkg.destination
+                  const isEven = index % 2 === 0
+                  const colorClass = ['blue', 'purple', 'pink', 'cyan'][index % 4]
 
-                {/* Bali */}
-                <Link
-                  href={destinationPackages['Bali, Indonesia'] ? `/paquetes/${destinationPackages['Bali, Indonesia'].id}` : '#paquetes'}
-                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-purple-500/50 transition-all duration-500 hover:scale-105 mt-8 block"
-                >
-                  <Image
-                    src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80"
-                    alt="Bali"
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    sizes="(max-width: 1024px) 100vw, 400px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 via-pink-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4 text-purple-400" />
-                      <span className="text-xs font-bold text-purple-400 tracking-wider uppercase">Asia</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Bali</h3>
-                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      Paraíso tropical y cultura
-                    </p>
-                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                      <span className="text-white/90 text-sm font-semibold">Desde $950</span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Tokio */}
-                <Link
-                  href={destinationPackages['Tokio, Japón'] ? `/paquetes/${destinationPackages['Tokio, Japón'].id}` : '#paquetes'}
-                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-pink-500/50 transition-all duration-500 hover:scale-105 block"
-                >
-                  <Image
-                    src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80"
-                    alt="Tokio"
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    sizes="(max-width: 1024px) 100vw, 400px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-red-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4 text-pink-400" />
-                      <span className="text-xs font-bold text-pink-400 tracking-wider uppercase">Asia</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Tokio</h3>
-                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      Tradición y modernidad
-                    </p>
-                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                      <span className="text-white/90 text-sm font-semibold">Desde $1,400</span>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Santorini */}
-                <Link
-                  href={destinationPackages['Santorini, Grecia'] ? `/paquetes/${destinationPackages['Santorini, Grecia'].id}` : '#paquetes'}
-                  className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-cyan-500/50 transition-all duration-500 hover:scale-105 mt-8 block"
-                >
-                  <Image
-                    src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800&q=80"
-                    alt="Santorini"
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    sizes="(max-width: 1024px) 100vw, 400px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/60 via-blue-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4 text-cyan-400" />
-                      <span className="text-xs font-bold text-cyan-400 tracking-wider uppercase">Europa</span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Santorini</h3>
-                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                      Islas griegas de ensueño
-                    </p>
-                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                      <span className="text-white/90 text-sm font-semibold">Desde $1,100</span>
-                    </div>
-                  </div>
-                </Link>
+                  return (
+                    <Link
+                      key={pkg.id}
+                      href={`/paquetes/${pkg.id}`}
+                      className={`relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-${colorClass}-500/50 transition-all duration-500 hover:scale-105 ${!isEven ? 'mt-8' : ''} block`}
+                    >
+                      <Image
+                        src={pkg.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'}
+                        alt={cityName}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        sizes="(max-width: 1024px) 100vw, 400px"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                      <div className={`absolute inset-0 bg-gradient-to-t from-${colorClass}-900/60 via-${colorClass}-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                        <div className="flex items-center gap-2 mb-2">
+                          <MapPin className={`w-4 h-4 text-${colorClass}-400`} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-2">{cityName}</h3>
+                        <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                          {pkg.short_description || pkg.destination}
+                        </p>
+                        <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                          <span className="text-white/90 text-sm font-semibold">Desde ${pkg.price_estimate}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
 
               {/* Floating badge */}
@@ -286,9 +238,13 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
+            )}
           </div>
         </div>
       </section>
+
+      {/* Infinite Destinations Scroll Section */}
+      <InfiniteDestinationsScroll packages={scrollPackages || []} />
 
       {/* Agency Services Section */}
       <section id="servicios" className="container mx-auto px-4 py-20 bg-white/50 rounded-3xl">

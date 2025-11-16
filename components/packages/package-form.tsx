@@ -51,6 +51,12 @@ export default function PackageForm({ mode, defaultValues, onSuccess }: PackageF
       category: defaultValues?.category || undefined,
       is_active: defaultValues?.is_active !== undefined ? defaultValues.is_active : true,
       is_featured: defaultValues?.is_featured !== undefined ? defaultValues.is_featured : false,
+      show_in_scroll: defaultValues?.show_in_scroll !== undefined ? defaultValues.show_in_scroll : false,
+      show_in_hero: defaultValues?.show_in_hero !== undefined ? defaultValues.show_in_hero : false,
+      display_order: defaultValues?.display_order || 0,
+      short_description: defaultValues?.short_description || '',
+      continent: defaultValues?.continent || '',
+      gradient_colors: defaultValues?.gradient_colors || 'from-blue-500 to-indigo-600',
     },
   })
 
@@ -299,29 +305,194 @@ export default function PackageForm({ mode, defaultValues, onSuccess }: PackageF
           />
         )}
 
-        {/* Is Featured - Show on Landing Page */}
-        <FormField
-          control={form.control}
-          name="is_featured"
-          render={({ field }) => (
-            <FormItem className="flex items-center gap-2">
-              <FormControl>
-                <input
-                  type="checkbox"
-                  checked={field.value}
-                  onChange={field.onChange}
-                  className="h-4 w-4 rounded border-gray-300"
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>⭐ Featured on Landing Page</FormLabel>
+        {/* Display Configuration Section */}
+        <div className="border-t pt-6 space-y-4">
+          <h3 className="text-lg font-semibold">Display Configuration</h3>
+          <p className="text-sm text-gray-600">Control where this package appears on the website</p>
+
+          {/* Is Featured - Show on Landing Page */}
+          <FormField
+            control={form.control}
+            name="is_featured"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-2">
+                <FormControl>
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={field.onChange}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>⭐ Featured on Landing Page</FormLabel>
+                  <FormDescription>
+                    Display this package on the public landing page
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Show in Infinite Scroll */}
+          <FormField
+            control={form.control}
+            name="show_in_scroll"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-2">
+                <FormControl>
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={field.onChange}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>📜 Show in Infinite Scroll Section</FormLabel>
+                  <FormDescription>
+                    Display this package in the destinations scroll section
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Show in Hero */}
+          <FormField
+            control={form.control}
+            name="show_in_hero"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-2">
+                <FormControl>
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={field.onChange}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>🎯 Show in Hero Section</FormLabel>
+                  <FormDescription>
+                    Display this package in the hero banner (top of page)
+                  </FormDescription>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {/* Display Order */}
+          <FormField
+            control={form.control}
+            name="display_order"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Display Order</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    min="0"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                  />
+                </FormControl>
                 <FormDescription>
-                  Display this package on the public landing page
+                  Lower numbers appear first (0 = highest priority)
                 </FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Short Description */}
+          <FormField
+            control={form.control}
+            name="short_description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Short Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Brief description for cards (140 chars recommended)"
+                    rows={2}
+                    maxLength={500}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Short description for display in cards (max 500 characters)
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Continent and Gradient Colors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Continent */}
+            <FormField
+              control={form.control}
+              name="continent"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Continent</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select continent" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Europa">🇪🇺 Europa</SelectItem>
+                      <SelectItem value="Asia">🌏 Asia</SelectItem>
+                      <SelectItem value="América">🌎 América</SelectItem>
+                      <SelectItem value="África">🌍 África</SelectItem>
+                      <SelectItem value="Oceanía">🏝️ Oceanía</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Continent for geographical grouping
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Gradient Colors */}
+            <FormField
+              control={form.control}
+              name="gradient_colors"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gradient Colors</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gradient" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="from-blue-500 to-indigo-600">💙 Blue → Indigo</SelectItem>
+                      <SelectItem value="from-purple-500 to-pink-600">💜 Purple → Pink</SelectItem>
+                      <SelectItem value="from-pink-500 to-red-600">💗 Pink → Red</SelectItem>
+                      <SelectItem value="from-orange-500 to-red-600">🧡 Orange → Red</SelectItem>
+                      <SelectItem value="from-yellow-500 to-orange-600">💛 Yellow → Orange</SelectItem>
+                      <SelectItem value="from-amber-500 to-yellow-600">🟡 Amber → Yellow</SelectItem>
+                      <SelectItem value="from-green-500 to-emerald-600">💚 Green → Emerald</SelectItem>
+                      <SelectItem value="from-cyan-500 to-blue-600">🩵 Cyan → Blue</SelectItem>
+                      <SelectItem value="from-slate-500 to-gray-700">🩶 Slate → Gray</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Card gradient color theme
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
         {/* Submit Buttons */}
         <div className="flex gap-4 pt-4">

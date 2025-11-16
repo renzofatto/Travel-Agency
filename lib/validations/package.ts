@@ -103,7 +103,13 @@ export const createPackageSchema = z.object({
   price_estimate: z.number().min(0, 'Price must be positive').optional(),
   category: packageCategoryEnum.optional(),
   is_active: z.boolean().optional().default(true),
-  is_featured: z.boolean().optional().default(false), // NEW: Show on landing page
+  is_featured: z.boolean().optional().default(false), // Show on landing page
+  show_in_scroll: z.boolean().optional().default(false), // Show in infinite scroll section
+  show_in_hero: z.boolean().optional().default(false), // Show in hero section
+  display_order: z.number().int().min(0).optional().default(0), // Display order
+  short_description: z.string().max(500, 'Short description must be less than 500 characters').optional(), // Short description for cards
+  continent: z.string().max(50, 'Continent must be less than 50 characters').optional(), // Continent for grouping
+  gradient_colors: z.string().max(100, 'Gradient colors must be less than 100 characters').optional(), // Tailwind gradient classes
 })
 
 export type CreatePackageInput = z.infer<typeof createPackageSchema>
