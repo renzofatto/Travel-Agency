@@ -345,3 +345,4 @@ Este proyecto es privado y no tiene licencia pública por ahora.
 ---
 
 **Desarrollado con ❤️ usando Next.js 16, TypeScript y Supabase**
+# Force redeploy with environment variables
