@@ -2,7 +2,7 @@ import { Plane } from 'lucide-react'
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-white/90 backdrop-blur-md mt-20">
+    <footer className="border-t bg-white/90 backdrop-blur-md">
       <div className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>

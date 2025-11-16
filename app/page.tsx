@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import PackagesSection from '@/components/packages/packages-section'
+import LandingNavbar from '@/components/layout/landing-navbar'
 import { createClient } from '@/lib/supabase/server'
 import {
   Plane,
@@ -32,6 +33,22 @@ export const revalidate = 3600
 export default async function HomePage() {
   // Fetch featured packages - Next.js cacheará automáticamente este fetch
   const supabase = await createClient()
+
+  // Check if user is authenticated
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Fetch user profile if authenticated
+  let userProfile = null
+  if (user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('full_name, avatar_url, role')
+      .eq('id', user.id)
+      .single()
+
+    userProfile = { ...user, ...profile }
+  }
+
   const { data: packages } = await supabase
     .from('travel_packages')
     .select(`
@@ -57,51 +74,20 @@ export default async function HomePage() {
     .order('created_at', { ascending: false })
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <header className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Plane className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                TravelHub
-              </span>
-              <p className="text-xs text-gray-600">Tu Agencia de Viajes Digital</p>
-            </div>
-          </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="#servicios" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Servicios
-            </a>
-            <a href="#paquetes" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Paquetes
-            </a>
-            <a href="#plataforma" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Plataforma
-            </a>
-            <a href="#testimonios" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Testimonios
-            </a>
-          </nav>
-          <div className="flex items-center space-x-3">
-            <Link href="/auth/login">
-              <Button variant="ghost" className="hidden sm:flex">
-                Iniciar Sesión
-              </Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                Comenzar Gratis
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Floating particles background */}
+      <div className="fixed top-0 left-0 right-0 h-32 z-40 pointer-events-none overflow-hidden">
+        <div className="absolute top-10 left-[10%] w-2 h-2 bg-blue-400/30 rounded-full animate-float-slow" />
+        <div className="absolute top-20 left-[30%] w-1.5 h-1.5 bg-purple-400/30 rounded-full animate-float-medium" />
+        <div className="absolute top-14 left-[50%] w-2.5 h-2.5 bg-pink-400/30 rounded-full animate-float-fast" />
+        <div className="absolute top-8 left-[70%] w-1 h-1 bg-indigo-400/30 rounded-full animate-float-slow" />
+        <div className="absolute top-16 left-[85%] w-2 h-2 bg-cyan-400/30 rounded-full animate-float-medium" />
+      </div>
+
+      {/* Header - Dynamic Navbar */}
+      <LandingNavbar user={userProfile} />
 
       {/* Hero Section with Background */}
-      <section className="relative h-[85vh] flex items-center overflow-hidden">
+      <section className="relative h-screen flex items-center overflow-hidden pt-20">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image

@@ -177,6 +177,20 @@ function MyForm() {
 }
 ```
 
+## Custom Animations
+
+The project includes several custom animations defined in `app/globals.css`:
+
+### Available Animations:
+- `animate-spin-slow` - Slow rotation (3s)
+- `animate-pulse-slow` - Slow pulse effect (4s)
+- `animate-float-slow` - Slow floating movement (6s)
+- `animate-float-medium` - Medium speed floating (4s)
+- `animate-float-fast` - Fast floating with scale (3s)
+- `animate-fade-in` - Fade in effect (0.5s)
+
+These animations are used in the navbar's floating particles and other UI elements.
+
 ## Personalización
 
 ### Cambiar colores del spinner

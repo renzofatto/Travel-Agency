@@ -36,7 +36,7 @@ export default async function AdminLayout({
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar user={{ ...user, ...profile }} />
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 pt-20">
         <Sidebar isAdmin={isAdmin} />
 
         <main className="flex-1 overflow-auto">
