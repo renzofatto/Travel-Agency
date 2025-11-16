@@ -147,7 +147,7 @@ export default function PackagesSection({ packages }: PackagesSectionProps) {
             .slice(0, 4)
 
           // Default cover image if none provided
-          const coverImage = pkg.cover_image || '/images/default-package.jpg'
+          const coverImage = pkg.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'
 
           return (
             <Link key={pkg.id} href={`/paquetes/${pkg.id}`} className="block">

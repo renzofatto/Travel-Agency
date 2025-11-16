@@ -18,10 +18,15 @@ import {
   XCircle,
 } from 'lucide-react'
 
-const difficultyLabels = {
-  easy: { label: 'Fácil', color: 'bg-green-100 text-green-700' },
-  moderate: { label: 'Moderado', color: 'bg-orange-100 text-orange-700' },
-  challenging: { label: 'Desafiante', color: 'bg-red-100 text-red-700' },
+const categoryLabels = {
+  adventure: { label: 'Aventura', color: 'bg-orange-100 text-orange-700', emoji: '🏔️' },
+  culture: { label: 'Cultura', color: 'bg-purple-100 text-purple-700', emoji: '🏛️' },
+  luxury: { label: 'Lujo', color: 'bg-yellow-100 text-yellow-700', emoji: '💎' },
+  relaxation: { label: 'Relax', color: 'bg-blue-100 text-blue-700', emoji: '🧘' },
+  nature: { label: 'Naturaleza', color: 'bg-green-100 text-green-700', emoji: '🌿' },
+  beach: { label: 'Playa', color: 'bg-cyan-100 text-cyan-700', emoji: '🏖️' },
+  city: { label: 'Ciudad', color: 'bg-gray-100 text-gray-700', emoji: '🏙️' },
+  family: { label: 'Familia', color: 'bg-pink-100 text-pink-700', emoji: '👨‍👩‍👧‍👦' },
 }
 
 const categoryEmojis: Record<string, string> = {
@@ -51,7 +56,7 @@ export default async function PackageDetailPage({
       duration_days,
       cover_image,
       price_estimate,
-      difficulty_level,
+      category,
       is_featured,
       package_itinerary_items (
         id,
@@ -101,11 +106,11 @@ export default async function PackageDetailPage({
       itemsByDay[item.day_number].push(item)
     })
 
-  const difficultyInfo = pkg.difficulty_level
-    ? difficultyLabels[pkg.difficulty_level as keyof typeof difficultyLabels]
+  const categoryInfo = pkg.category
+    ? categoryLabels[pkg.category as keyof typeof categoryLabels]
     : null
 
-  const coverImage = pkg.cover_image || '/images/default-package.jpg'
+  const coverImage = pkg.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -137,9 +142,9 @@ export default async function PackageDetailPage({
           <div className="container mx-auto px-4 pb-16">
             {/* Badges */}
             <div className="flex items-center gap-2 mb-4">
-              {difficultyInfo && (
-                <Badge className={`${difficultyInfo.color} shadow-lg`}>
-                  {difficultyInfo.label}
+              {categoryInfo && (
+                <Badge className={`${categoryInfo.color} shadow-lg`}>
+                  {categoryInfo.emoji} {categoryInfo.label}
                 </Badge>
               )}
               {pkg.is_featured && (
@@ -408,11 +413,11 @@ export default async function PackageDetailPage({
                           <span className="text-gray-600">Destino</span>
                           <span className="font-semibold">{pkg.destination}</span>
                         </div>
-                        {difficultyInfo && (
+                        {categoryInfo && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Dificultad</span>
-                            <Badge className={difficultyInfo.color}>
-                              {difficultyInfo.label}
+                            <span className="text-gray-600">Categoría</span>
+                            <Badge className={categoryInfo.color}>
+                              {categoryInfo.emoji} {categoryInfo.label}
                             </Badge>
                           </div>
                         )}
