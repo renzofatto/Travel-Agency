@@ -18,10 +18,7 @@ import {
   User as UserIcon,
   Shield,
   Plane,
-  Compass,
-  Map,
   Sparkles,
-  LayoutDashboard
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -110,19 +107,31 @@ export default function Navbar({ user }: NavbarProps) {
             {/* Mesh gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl" />
 
-            <div className="relative px-6 py-4 flex justify-between items-center">
+            <div className={cn(
+              'relative flex justify-between items-center transition-all duration-500',
+              scrolled ? 'px-4 py-3' : 'px-6 py-4'
+            )}>
               {/* Logo con efecto 3D */}
-              <Link href="/" className="relative group/logo flex items-center gap-3">
+              <Link href="/" className={cn(
+                'relative group/logo flex items-center transition-all duration-500',
+                scrolled ? 'gap-2' : 'gap-3'
+              )}>
                 <div className="relative">
                   {/* Glow layers */}
                   <div className="absolute -inset-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl opacity-0 group-hover/logo:opacity-40 blur-2xl transition-all duration-700 animate-pulse-slow" />
                   <div className="absolute -inset-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-2xl opacity-30 group-hover/logo:opacity-60 blur-xl transition-all duration-500" />
 
                   {/* Logo container with 3D effect */}
-                  <div className="relative w-14 h-14 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-2xl transform group-hover/logo:scale-110 group-hover/logo:rotate-3 transition-all duration-500">
+                  <div className={cn(
+                    'relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-2xl transform group-hover/logo:scale-110 group-hover/logo:rotate-3 transition-all duration-500',
+                    scrolled ? 'w-11 h-11' : 'w-14 h-14'
+                  )}>
                     {/* Inner glow */}
                     <div className="absolute inset-1 bg-gradient-to-br from-blue-400/50 to-transparent rounded-xl" />
-                    <Plane className="relative w-7 h-7 text-white transform -rotate-45 group-hover/logo:rotate-12 group-hover/logo:scale-110 transition-all duration-700" />
+                    <Plane className={cn(
+                      'relative text-white transform -rotate-45 group-hover/logo:rotate-12 group-hover/logo:scale-110 transition-all duration-700',
+                      scrolled ? 'w-5 h-5' : 'w-7 h-7'
+                    )} />
                   </div>
 
                   {/* Orbiting particles */}
@@ -132,30 +141,39 @@ export default function Navbar({ user }: NavbarProps) {
 
                 {/* Logo text con efecto holográfico */}
                 <div className="flex flex-col">
-                  <span className="text-2xl font-black tracking-tight relative">
+                  <span className={cn(
+                    'font-black tracking-tight relative transition-all duration-500',
+                    scrolled ? 'text-xl' : 'text-2xl'
+                  )}>
                     <span className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent blur-sm opacity-50" />
                     <span className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent group-hover/logo:from-purple-600 group-hover/logo:via-pink-600 group-hover/logo:to-orange-600 transition-all duration-700">
                       TravelHub
                     </span>
                   </span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <div className="w-1 h-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse" />
-                    <span className="text-[9px] font-bold text-gray-500 tracking-[0.2em] uppercase">
-                      Live The Journey
-                    </span>
-                    <div className="w-1 h-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  </div>
+                  {!scrolled && (
+                    <div className="flex items-center gap-1.5 mt-0.5 animate-fade-in">
+                      <div className="w-1 h-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse" />
+                      <span className="text-[9px] font-bold text-gray-500 tracking-[0.2em] uppercase">
+                        Live The Journey
+                      </span>
+                      <div className="w-1 h-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                    </div>
+                  )}
                 </div>
               </Link>
 
               {/* Right side */}
-              <div className="flex items-center gap-4">
+              <div className={cn(
+                'flex items-center transition-all duration-500',
+                scrolled ? 'gap-3' : 'gap-4'
+              )}>
                 {/* Admin badge con efecto neon */}
                 {user.role === 'admin' && (
                   <Link
                     href="/admin"
                     className={cn(
-                      'group/admin relative hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm overflow-hidden transition-all duration-500',
+                      'group/admin relative hidden sm:flex items-center rounded-full font-bold overflow-hidden transition-all duration-500',
+                      scrolled ? 'gap-1.5 px-4 py-2 text-xs' : 'gap-2 px-5 py-2.5 text-sm',
                       pathname?.startsWith('/admin')
                         ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white shadow-2xl shadow-purple-500/50 scale-105'
                         : 'bg-white/60 backdrop-blur-xl text-purple-600 hover:scale-105 hover:shadow-xl border border-purple-200/50'
@@ -170,7 +188,8 @@ export default function Navbar({ user }: NavbarProps) {
                     )}
 
                     <Shield className={cn(
-                      'w-4 h-4 relative z-10 transition-all duration-300',
+                      'relative z-10 transition-all duration-300',
+                      scrolled ? 'w-3.5 h-3.5' : 'w-4 h-4',
                       !pathname?.startsWith('/admin') && 'group-hover/admin:text-white'
                     )} />
                     <span className={cn(
@@ -180,7 +199,8 @@ export default function Navbar({ user }: NavbarProps) {
                       Admin
                     </span>
                     <Sparkles className={cn(
-                      'w-3.5 h-3.5 relative z-10 transition-all duration-300',
+                      'relative z-10 transition-all duration-300',
+                      scrolled ? 'w-3 h-3' : 'w-3.5 h-3.5',
                       pathname?.startsWith('/admin') ? 'animate-pulse' : 'group-hover/admin:text-white'
                     )} />
                   </Link>
@@ -200,15 +220,24 @@ export default function Navbar({ user }: NavbarProps) {
                           <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-orange-500 rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-500 animate-spin-slow" />
 
                           {/* Avatar with morphing effect */}
-                          <Avatar className="relative h-12 w-12 cursor-pointer border-2 border-white shadow-2xl group-hover/avatar:scale-110 group-hover/avatar:rotate-6 transition-all duration-500">
+                          <Avatar className={cn(
+                            'relative cursor-pointer border-2 border-white shadow-2xl group-hover/avatar:scale-110 group-hover/avatar:rotate-6 transition-all duration-500',
+                            scrolled ? 'h-10 w-10' : 'h-12 w-12'
+                          )}>
                             <AvatarImage src={user.avatar_url} className="object-cover" />
-                            <AvatarFallback className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white font-black text-sm">
+                            <AvatarFallback className={cn(
+                              'bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white font-black',
+                              scrolled ? 'text-xs' : 'text-sm'
+                            )}>
                               {getInitials(user.full_name, user.email)}
                             </AvatarFallback>
                           </Avatar>
 
                           {/* Status indicator */}
-                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-lg animate-pulse" />
+                          <div className={cn(
+                            'absolute -bottom-0.5 -right-0.5 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-lg animate-pulse transition-all duration-500',
+                            scrolled ? 'w-3 h-3' : 'w-3.5 h-3.5'
+                          )} />
                         </div>
                       </div>
                     </DropdownMenuTrigger>
@@ -311,12 +340,21 @@ export default function Navbar({ user }: NavbarProps) {
                 ) : (
                   <div className="relative">
                     <div className="absolute -inset-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-md opacity-40 animate-pulse" />
-                    <Avatar className="relative h-12 w-12 border-2 border-white shadow-2xl">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white font-black">
+                    <Avatar className={cn(
+                      'relative border-2 border-white shadow-2xl transition-all duration-500',
+                      scrolled ? 'h-10 w-10' : 'h-12 w-12'
+                    )}>
+                      <AvatarFallback className={cn(
+                        'bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white font-black',
+                        scrolled ? 'text-xs' : 'text-sm'
+                      )}>
                         {getInitials(user.full_name, user.email)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gray-300 rounded-full border-2 border-white animate-pulse" />
+                    <div className={cn(
+                      'absolute -bottom-0.5 -right-0.5 bg-gray-300 rounded-full border-2 border-white animate-pulse transition-all duration-500',
+                      scrolled ? 'w-3 h-3' : 'w-3.5 h-3.5'
+                    )} />
                   </div>
                 )}
               </div>
