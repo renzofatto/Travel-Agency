@@ -68,7 +68,7 @@ function IncludedItemsList({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const form = useForm<PackageIncludedItemInput>({
+  const form = useForm({
     resolver: zodResolver(packageIncludedItemBaseSchema),
     defaultValues: {
       title: '',
@@ -78,7 +78,7 @@ function IncludedItemsList({
     },
   })
 
-  const editForm = useForm<PackageIncludedItemInput>({
+  const editForm = useForm({
     resolver: zodResolver(packageIncludedItemBaseSchema),
   })
 
@@ -306,7 +306,7 @@ function ExcludedItemsList({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const form = useForm<PackageExcludedItemInput>({
+  const form = useForm({
     resolver: zodResolver(packageExcludedItemBaseSchema),
     defaultValues: {
       title: '',
@@ -316,7 +316,7 @@ function ExcludedItemsList({
     },
   })
 
-  const editForm = useForm<PackageExcludedItemInput>({
+  const editForm = useForm({
     resolver: zodResolver(packageExcludedItemBaseSchema),
   })
 

@@ -182,7 +182,7 @@ export async function togglePackageActive(packageId: string, isActive: boolean) 
 // Upload itinerary item image
 export async function uploadItineraryItemImage(formData: FormData) {
   const { user, error: adminError } = await checkIsAdmin()
-  if (adminError) return { error: adminError }
+  if (adminError || !user) return { error: adminError || 'Unauthorized' }
 
   const supabase = await createClient()
 

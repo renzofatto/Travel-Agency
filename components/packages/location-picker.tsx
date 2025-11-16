@@ -18,10 +18,6 @@ const TileLayer = dynamic(
 )
 const Marker = dynamic(() => import('react-leaflet').then((mod) => mod.Marker), { ssr: false })
 const Popup = dynamic(() => import('react-leaflet').then((mod) => mod.Popup), { ssr: false })
-const useMapEvents = dynamic(
-  () => import('react-leaflet').then((mod) => mod.useMapEvents),
-  { ssr: false }
-)
 
 interface LocationPickerProps {
   value?: string // Location name
@@ -36,15 +32,24 @@ interface SearchResult {
   lon: string
 }
 
-// Component to handle map clicks
-function MapClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onClick(e.latlng.lat, e.latlng.lng)
-    },
-  })
-  return null
-}
+// Component to handle map clicks - dynamically imported
+const MapClickHandler = dynamic(
+  () =>
+    import('react-leaflet').then((mod) => {
+      const { useMapEvents } = mod
+      // Return a component that uses the hook
+      const Component = ({ onClick }: { onClick: (lat: number, lng: number) => void }) => {
+        useMapEvents({
+          click(e) {
+            onClick(e.latlng.lat, e.latlng.lng)
+          },
+        })
+        return null
+      }
+      return Component
+    }),
+  { ssr: false }
+)
 
 export default function LocationPicker({
   value = '',
