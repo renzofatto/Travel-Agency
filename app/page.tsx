@@ -149,37 +149,121 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Hero Stats with Glassmorphism */}
+            {/* Destination Collage */}
             <div className="relative hidden lg:block">
               <div className="grid grid-cols-2 gap-4">
-                <Card className="bg-white/10 backdrop-blur-md text-white border-white/20 shadow-2xl hover:bg-white/20 transition-all">
-                  <CardContent className="pt-6">
-                    <Users className="w-10 h-10 mb-3 opacity-90" />
-                    <p className="text-4xl font-bold mb-1">500+</p>
-                    <p className="text-sm opacity-90">Viajeros Felices</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-md text-white border-white/20 shadow-2xl mt-8 hover:bg-white/20 transition-all">
-                  <CardContent className="pt-6">
-                    <Globe className="w-10 h-10 mb-3 opacity-90" />
-                    <p className="text-4xl font-bold mb-1">50+</p>
-                    <p className="text-sm opacity-90">Destinos</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-md text-white border-white/20 shadow-2xl hover:bg-white/20 transition-all">
-                  <CardContent className="pt-6">
-                    <Star className="w-10 h-10 mb-3 opacity-90" />
-                    <p className="text-4xl font-bold mb-1">4.9</p>
-                    <p className="text-sm opacity-90">Rating Promedio</p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-md text-white border-white/20 shadow-2xl mt-8 hover:bg-white/20 transition-all">
-                  <CardContent className="pt-6">
-                    <TrendingUp className="w-10 h-10 mb-3 opacity-90" />
-                    <p className="text-4xl font-bold mb-1">95%</p>
-                    <p className="text-sm opacity-90">Recomendación</p>
-                  </CardContent>
-                </Card>
+                {/* Paris */}
+                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-blue-500/50 transition-all duration-500 hover:scale-105">
+                  <Image
+                    src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80"
+                    alt="París"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 1024px) 100vw, 400px"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-purple-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs font-bold text-blue-400 tracking-wider uppercase">Europa</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">París</h3>
+                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      Ciudad del amor y la luz
+                    </p>
+                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                      <span className="text-white/90 text-sm font-semibold">Desde $1,200</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bali */}
+                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-purple-500/50 transition-all duration-500 hover:scale-105 mt-8">
+                  <Image
+                    src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&q=80"
+                    alt="Bali"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 1024px) 100vw, 400px"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 via-pink-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-purple-400" />
+                      <span className="text-xs font-bold text-purple-400 tracking-wider uppercase">Asia</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">Bali</h3>
+                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      Paraíso tropical y cultura
+                    </p>
+                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                      <span className="text-white/90 text-sm font-semibold">Desde $950</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tokio */}
+                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-pink-500/50 transition-all duration-500 hover:scale-105">
+                  <Image
+                    src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80"
+                    alt="Tokio"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 1024px) 100vw, 400px"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-red-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-pink-400" />
+                      <span className="text-xs font-bold text-pink-400 tracking-wider uppercase">Asia</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">Tokio</h3>
+                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      Tradición y modernidad
+                    </p>
+                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                      <span className="text-white/90 text-sm font-semibold">Desde $1,400</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Santorini */}
+                <div className="relative h-64 rounded-2xl overflow-hidden group cursor-pointer shadow-2xl hover:shadow-cyan-500/50 transition-all duration-500 hover:scale-105 mt-8">
+                  <Image
+                    src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800&q=80"
+                    alt="Santorini"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 1024px) 100vw, 400px"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/60 via-blue-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="w-4 h-4 text-cyan-400" />
+                      <span className="text-xs font-bold text-cyan-400 tracking-wider uppercase">Europa</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">Santorini</h3>
+                    <p className="text-sm text-white/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                      Islas griegas de ensueño
+                    </p>
+                    <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                      <span className="text-white/90 text-sm font-semibold">Desde $1,100</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating badge */}
+              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+                <div className="bg-white/95 backdrop-blur-xl px-6 py-3 rounded-full shadow-2xl border border-white/20 flex items-center gap-3 hover:scale-105 transition-transform">
+                  <Globe className="w-5 h-5 text-[var(--color-brand-ocean)]" />
+                  <span className="font-bold text-[var(--color-brand-navy)]">50+ Destinos</span>
+                  <div className="w-2 h-2 bg-[var(--color-brand-ocean)] rounded-full animate-pulse" />
+                </div>
               </div>
             </div>
           </div>
