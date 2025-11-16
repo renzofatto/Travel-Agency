@@ -91,6 +91,11 @@ export async function createPackage(data: CreatePackageInput) {
     return { error: 'Failed to create package. Please try again.' }
   }
 
+  // Invalidate landing page cache if package is featured
+  if (data.is_featured) {
+    revalidatePath('/')
+  }
+
   revalidatePath('/admin/packages')
   return { success: true, data: package_ }
 }
@@ -128,8 +133,14 @@ export async function updatePackage(data: EditPackageInput) {
     return { error: 'Failed to update package. Please try again.' }
   }
 
+  // Invalidate landing page cache if package is featured
+  if (data.is_featured) {
+    revalidatePath('/')
+  }
+
   revalidatePath('/admin/packages')
   revalidatePath(`/admin/packages/${data.id}`)
+  revalidatePath(`/paquetes/${data.id}`)
   return { success: true }
 }
 

@@ -24,8 +24,13 @@ import {
   Clock,
 } from 'lucide-react'
 
+// Configuración de caché para ISR (Incremental Static Regeneration)
+// La página se regenerará cada 3600 segundos (1 hora) automáticamente
+// También se regenera cuando se llama a revalidatePath('/') desde las acciones
+export const revalidate = 3600
+
 export default async function HomePage() {
-  // Fetch featured packages from Supabase
+  // Fetch featured packages - Next.js cacheará automáticamente este fetch
   const supabase = await createClient()
   const { data: packages } = await supabase
     .from('travel_packages')

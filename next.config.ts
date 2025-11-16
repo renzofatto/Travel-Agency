@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
     ],
+    // Configuración de caché para imágenes optimizadas
+    minimumCacheTTL: 31536000, // 1 año en segundos (imágenes estáticas)
   },
 };
 
