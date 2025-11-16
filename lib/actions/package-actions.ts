@@ -81,6 +81,12 @@ export async function createPackage(data: CreatePackageInput) {
       category: data.category || null,
       is_active: data.is_active,
       is_featured: data.is_featured || false,
+      show_in_scroll: data.show_in_scroll || false,
+      show_in_hero: data.show_in_hero || false,
+      display_order: data.display_order || 0,
+      short_description: data.short_description || null,
+      continent: data.continent || null,
+      gradient_colors: data.gradient_colors || 'from-blue-500 to-indigo-600',
       created_by: user!.id,
     })
     .select()
@@ -91,8 +97,8 @@ export async function createPackage(data: CreatePackageInput) {
     return { error: 'Failed to create package. Please try again.' }
   }
 
-  // Invalidate landing page cache if package is featured
-  if (data.is_featured) {
+  // Invalidate landing page cache if package is featured, in scroll, or in hero
+  if (data.is_featured || data.show_in_scroll || data.show_in_hero) {
     revalidatePath('/')
   }
 
@@ -125,6 +131,12 @@ export async function updatePackage(data: EditPackageInput) {
       category: data.category || null,
       is_active: data.is_active,
       is_featured: data.is_featured || false,
+      show_in_scroll: data.show_in_scroll || false,
+      show_in_hero: data.show_in_hero || false,
+      display_order: data.display_order || 0,
+      short_description: data.short_description || null,
+      continent: data.continent || null,
+      gradient_colors: data.gradient_colors || 'from-blue-500 to-indigo-600',
     })
     .eq('id', data.id)
 
@@ -133,8 +145,8 @@ export async function updatePackage(data: EditPackageInput) {
     return { error: 'Failed to update package. Please try again.' }
   }
 
-  // Invalidate landing page cache if package is featured
-  if (data.is_featured) {
+  // Invalidate landing page cache if package is featured, in scroll, or in hero
+  if (data.is_featured || data.show_in_scroll || data.show_in_hero) {
     revalidatePath('/')
   }
 
