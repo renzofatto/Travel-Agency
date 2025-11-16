@@ -67,11 +67,11 @@ export default function Sidebar({ isAdmin = false }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out',
+          'fixed lg:sticky lg:top-0 inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:self-start',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <div className="h-full flex flex-col pt-20 lg:pt-5 pb-4 overflow-y-auto">
+        <div className="h-screen lg:h-auto lg:min-h-[calc(100vh-64px)] flex flex-col pt-20 lg:pt-5 pb-4 overflow-y-auto">
           <nav className="flex-1 px-4 space-y-1">
             {/* Primary navigation */}
             <div className="space-y-1">
