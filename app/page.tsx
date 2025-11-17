@@ -261,7 +261,7 @@ export default async function HomePage() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Nos encargamos de todos los detalles para que solo te preocupes por disfrutar
+            Vos solo preocupate por armar la valija. Del resto nos encargamos nosotros
           </p>
         </div>
 
@@ -281,10 +281,10 @@ export default async function HomePage() {
               </div>
             </div>
             <CardHeader>
-              <CardTitle className="text-xl">Paquetes Personalizados</CardTitle>
+              <CardTitle className="text-xl">Paquetes a Tu Medida</CardTitle>
               <CardDescription className="text-base">
-                Diseñamos el itinerario perfecto según tus intereses, presupuesto y fechas.
-                Cada viaje es único.
+                ¿Te gusta el buceo? ¿Preferís ciudades o naturaleza? Armamos el viaje que vos querés,
+                con tu presupuesto y en las fechas que mejor te vengan.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -306,8 +306,8 @@ export default async function HomePage() {
             <CardHeader>
               <CardTitle className="text-xl">Reservas & Alojamiento</CardTitle>
               <CardDescription className="text-base">
-                Gestionamos todas tus reservas: hoteles, hostels, vuelos, traslados y actividades.
-                Sin complicaciones.
+                Hoteles, vuelos, traslados, excursiones... nosotros reservamos todo. Vos llegás y
+                ya está todo listo. Cero stress, cero vueltas.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -329,8 +329,8 @@ export default async function HomePage() {
             <CardHeader>
               <CardTitle className="text-xl">Asistencia 24/7</CardTitle>
               <CardDescription className="text-base">
-                Soporte continuo durante todo tu viaje. Cambios de planes, emergencias o
-                consultas, estamos para ayudarte.
+                ¿Perdiste el vuelo? ¿Se canceló la excursión? ¿Necesitás cambiar algo? Llamanos
+                a cualquier hora. Siempre hay alguien del equipo para darte una mano.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -352,8 +352,8 @@ export default async function HomePage() {
             <CardHeader>
               <CardTitle className="text-xl">Viajes Grupales</CardTitle>
               <CardDescription className="text-base">
-                Especialistas en grupos grandes. Coordinamos actividades, transporte y
-                alojamiento para todos.
+                ¿Van 10? ¿Van 30? No importa. Ya organizamos viajes de egresados, grupos de
+                amigos, familias enteras. Sabemos coordinar a la tropa sin que se pierda nadie.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -375,8 +375,8 @@ export default async function HomePage() {
             <CardHeader>
               <CardTitle className="text-xl">Mejores Precios</CardTitle>
               <CardDescription className="text-base">
-                Alianzas con proveedores globales nos permiten ofrecerte tarifas exclusivas y
-                promociones especiales.
+                Después de años trabajando con hoteles y aerolíneas, conseguimos precios que no
+                vas a encontrar por tu cuenta.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -398,8 +398,8 @@ export default async function HomePage() {
             <CardHeader>
               <CardTitle className="text-xl">Destinos Increíbles</CardTitle>
               <CardDescription className="text-base">
-                Desde playas paradisíacas hasta ciudades históricas. Europa, Asia, América y
-                más. El mundo te espera.
+                Playas en Tailandia, ruinas en Machu Picchu, safaris en África, auroras en
+                Islandia... Mandanos un mensaje y te contamos todo lo que podemos hacer.
               </CardDescription>
             </CardHeader>
           </Card>
