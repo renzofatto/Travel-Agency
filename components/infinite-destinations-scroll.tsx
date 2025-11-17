@@ -246,23 +246,157 @@ export default function InfiniteDestinationsScroll({ packages = [] }: InfiniteDe
           ))}
         </div>
 
-        {/* Bottom CTA */}
+        {/* Bottom CTA - Travel-Focused with Images */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mt-20"
+          transition={{ duration: 0.8 }}
+          className="relative mt-32 mb-10 h-[600px] rounded-3xl overflow-hidden shadow-2xl"
         >
-          <p className="text-lg text-gray-600 mb-6">
-            ¿No encontraste lo que buscabas?
-          </p>
-          <Link href="#paquetes">
-            <Button size="lg" className="text-lg px-10">
-              Ver Todos los Paquetes
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </Link>
+          {/* Background Image Collage */}
+          <div className="absolute inset-0 grid grid-cols-3 gap-2">
+            {/* Left Column - Single large image */}
+            <div className="relative col-span-1">
+              <Image
+                src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80"
+                alt="Travel destination"
+                fill
+                className="object-cover"
+                sizes="33vw"
+              />
+            </div>
+
+            {/* Middle Column - Two stacked images */}
+            <div className="relative col-span-1 grid grid-rows-2 gap-2">
+              <div className="relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80"
+                  alt="Travel destination"
+                  fill
+                  className="object-cover"
+                  sizes="33vw"
+                />
+              </div>
+              <div className="relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80"
+                  alt="Travel destination"
+                  fill
+                  className="object-cover"
+                  sizes="33vw"
+                />
+              </div>
+            </div>
+
+            {/* Right Column - Two stacked images */}
+            <div className="relative col-span-1 grid grid-rows-2 gap-2">
+              <div className="relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80"
+                  alt="Travel destination"
+                  fill
+                  className="object-cover"
+                  sizes="33vw"
+                />
+              </div>
+              <div className="relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=800&q=80"
+                  alt="Travel destination"
+                  fill
+                  className="object-cover"
+                  sizes="33vw"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
+
+          {/* Content Overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 md:px-12">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Badge className="mb-6 bg-white/20 backdrop-blur-md text-white border-white/30 text-base px-6 py-2">
+                <MapPin className="w-4 h-4 mr-2" />
+                {destinations.length}+ Destinos Únicos
+              </Badge>
+            </motion.div>
+
+            {/* Title */}
+            <motion.h3
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 drop-shadow-2xl max-w-4xl leading-tight"
+            >
+              El mundo entero
+              <br />
+              te está esperando
+            </motion.h3>
+
+            {/* Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="text-xl md:text-2xl text-white/90 mb-10 max-w-2xl leading-relaxed drop-shadow-lg"
+            >
+              Descubrí experiencias únicas en cada rincón del planeta.
+              Tu próxima aventura comienza acá.
+            </motion.p>
+
+            {/* CTA Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5 }}
+            >
+              <Link href="/paquetes">
+                <Button
+                  size="lg"
+                  className="relative group bg-white text-gray-900 hover:bg-white/90 border-0 shadow-2xl text-xl px-12 py-8 font-bold overflow-hidden"
+                >
+                  <span className="relative flex items-center gap-3">
+                    Explorar Todos los Destinos
+                    <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
+                  </span>
+                </Button>
+              </Link>
+            </motion.div>
+
+            {/* Trust Indicators - Subtle */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.6 }}
+              className="mt-12 flex flex-wrap justify-center gap-8 text-white/80 text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-green-400" />
+                <span>100% Personalizable</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-blue-400" />
+                <span>Soporte 24/7</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-purple-400" />
+                <span>Mejor Precio Garantizado</span>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>
