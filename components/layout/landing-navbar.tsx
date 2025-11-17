@@ -24,6 +24,7 @@ import { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { COMPANY_INFO } from '@/lib/config/company'
 
 interface LandingNavbarProps {
   user: (User & {
@@ -95,13 +96,13 @@ export default function LandingNavbar({ user }: LandingNavbarProps) {
                 <span className="text-2xl font-black tracking-tight relative">
                   <span className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent blur-sm opacity-50" />
                   <span className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent group-hover/logo:from-purple-600 group-hover/logo:via-pink-600 group-hover/logo:to-orange-600 transition-all duration-700">
-                    TravelHub
+                    {COMPANY_INFO.name}
                   </span>
                 </span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <div className="w-1 h-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse" />
                   <span className="text-[9px] font-bold text-gray-500 tracking-[0.2em] uppercase">
-                    Live The Journey
+                    {COMPANY_INFO.tagline}
                   </span>
                   <div className="w-1 h-1 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
                 </div>
@@ -136,6 +137,13 @@ export default function LandingNavbar({ user }: LandingNavbarProps) {
                 className="relative px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-300 font-bold text-sm group/nav rounded-2xl hover:bg-white/40 backdrop-blur-sm"
               >
                 <span className="relative z-10">Testimonios</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300" />
+              </Link>
+              <Link
+                href="/#contacto"
+                className="relative px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-300 font-bold text-sm group/nav rounded-2xl hover:bg-white/40 backdrop-blur-sm"
+              >
+                <span className="relative z-10">Contacto</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300" />
               </Link>
             </nav>

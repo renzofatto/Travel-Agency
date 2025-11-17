@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import LandingNavbar from '@/components/layout/landing-navbar'
 import InfiniteDestinationsScroll from '@/components/infinite-destinations-scroll'
 import ScrollToHash from '@/components/scroll-to-hash'
+import ContactFormSection from '@/components/contact-form-section'
 import { createClient } from '@/lib/supabase/server'
 import {
   Plane,
@@ -123,7 +124,6 @@ export default async function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-left">
               <Badge className="mb-4 bg-white/20 backdrop-blur-md text-white border-white/30 hover:bg-white/30">
-                <Sparkles className="w-3 h-3 mr-1" />
                 Tu Agencia de Viajes de Confianza
               </Badge>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-2xl">
@@ -707,6 +707,9 @@ export default async function HomePage() {
           </Card>
         </div>
       </section>
+
+      {/* Contact Form Section */}
+      <ContactFormSection />
 
       {/* Final CTA Section */}
       <section className="container mx-auto px-4 py-20 text-center">
