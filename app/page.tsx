@@ -276,8 +276,8 @@ export default async function HomePage() {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <MapPin className="h-7 w-7 text-white" />
+              <div className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <MapPin className="h-6 w-6 text-blue-600" />
               </div>
             </div>
             <CardHeader>
@@ -299,8 +299,8 @@ export default async function HomePage() {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Hotel className="h-7 w-7 text-white" />
+              <div className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <Hotel className="h-6 w-6 text-purple-600" />
               </div>
             </div>
             <CardHeader>
@@ -322,8 +322,8 @@ export default async function HomePage() {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 w-14 h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Shield className="h-7 w-7 text-white" />
+              <div className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <Shield className="h-6 w-6 text-green-600" />
               </div>
             </div>
             <CardHeader>
@@ -345,8 +345,8 @@ export default async function HomePage() {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 w-14 h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Users className="h-7 w-7 text-white" />
+              <div className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <Users className="h-6 w-6 text-orange-600" />
               </div>
             </div>
             <CardHeader>
@@ -368,15 +368,15 @@ export default async function HomePage() {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <DollarSign className="h-7 w-7 text-white" />
+              <div className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-indigo-600" />
               </div>
             </div>
             <CardHeader>
               <CardTitle className="text-xl">Mejores Precios</CardTitle>
               <CardDescription className="text-base">
                 Después de años trabajando con hoteles y aerolíneas, conseguimos precios que no
-                vas a encontrar por tu cuenta.
+                vas a encontrar por tu cuenta. Y si encontrás más barato, te lo mejoramos.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -391,8 +391,8 @@ export default async function HomePage() {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 w-14 h-14 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Globe className="h-7 w-7 text-white" />
+              <div className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <Globe className="h-6 w-6 text-teal-600" />
               </div>
             </div>
             <CardHeader>
@@ -489,7 +489,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                 <Users className="h-6 w-6 text-blue-600" />
               </div>
-              <CardTitle>👥 Gestión de Grupos</CardTitle>
+              <CardTitle>Gestión de Grupos</CardTitle>
               <CardDescription>
                 Crea grupos de viaje con amigos, familia o desconocidos.
                 Asigna líderes y administra miembros fácilmente.
@@ -511,7 +511,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                 <Calendar className="h-6 w-6 text-purple-600" />
               </div>
-              <CardTitle>📅 Itinerario Colaborativo</CardTitle>
+              <CardTitle>Itinerario Colaborativo</CardTitle>
               <CardDescription>
                 Planifica actividades día a día con horarios, ubicaciones y categorías.
                 Reorganiza tu agenda al instante.
@@ -533,7 +533,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                 <DollarSign className="h-6 w-6 text-green-600" />
               </div>
-              <CardTitle>💰 División de Gastos</CardTitle>
+              <CardTitle>División de Gastos</CardTitle>
               <CardDescription>
                 Sistema tipo Splitwise integrado. Registra gastos, divide entre miembros
                 y ve quién debe a quién. 3 tipos de división.
@@ -555,7 +555,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
                 <FileText className="h-6 w-6 text-orange-600" />
               </div>
-              <CardTitle>📄 Documentos Centralizados</CardTitle>
+              <CardTitle>Documentos Centralizados</CardTitle>
               <CardDescription>
                 Guarda pasajes, reservas de hotel, tickets de actividades y más.
                 Todo en un solo lugar accesible para el grupo.
@@ -577,7 +577,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
                 <Camera className="h-6 w-6 text-pink-600" />
               </div>
-              <CardTitle>📸 Galería Compartida</CardTitle>
+              <CardTitle>Galería Compartida</CardTitle>
               <CardDescription>
                 Todos los miembros pueden subir fotos del viaje.
                 Comenta y revive los mejores momentos juntos.
@@ -599,7 +599,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                 <Clock className="h-6 w-6 text-indigo-600" />
               </div>
-              <CardTitle>⏰ Acceso 24/7</CardTitle>
+              <CardTitle>Acceso 24/7</CardTitle>
               <CardDescription>
                 Tu viaje siempre disponible desde cualquier dispositivo.
                 Sincronización en tiempo real para todo el grupo.
@@ -751,7 +751,6 @@ export default async function HomePage() {
           {/* Content */}
           <div className="relative z-10 pt-20 pb-20 px-6">
             <Badge className="mb-6 bg-white/20 backdrop-blur-md text-white border-white/30 text-base px-6 py-2">
-              <Sparkles className="w-4 h-4 mr-2" />
               Comienza tu Aventura Hoy
             </Badge>
             <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white drop-shadow-2xl">
@@ -780,20 +779,6 @@ export default async function HomePage() {
                   Iniciar Sesión
                 </Button>
               </Link>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-white/90">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
-                <span>Sin tarjeta requerida</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
-                <span>Configuración en 2 minutos</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
-                <span>Soporte 24/7</span>
-              </div>
             </div>
           </div>
         </div>
