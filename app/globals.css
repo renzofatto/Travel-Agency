@@ -80,6 +80,16 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Scroll offset for navbar anchor links */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Add scroll margin to sections with IDs to prevent navbar overlap */
+  section[id] {
+    scroll-margin-top: 5rem; /* 80px - altura aproximada del navbar + padding */
+  }
 }
 
 /* Custom Animations */
