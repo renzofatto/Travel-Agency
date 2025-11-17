@@ -111,7 +111,7 @@ export default async function PackageDetailPage({
 
         {/* Back Button */}
         <div className="absolute top-6 left-6 z-10">
-          <Link href="/#paquetes">
+          <Link href="/paquetes">
             <Button variant="secondary" className="gap-2 bg-white/90 backdrop-blur-sm hover:bg-white">
               <ArrowLeft className="w-4 h-4" />
               Volver a Paquetes

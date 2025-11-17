@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import PackagesSection from '@/components/packages/packages-section'
 import LandingNavbar from '@/components/layout/landing-navbar'
 import InfiniteDestinationsScroll from '@/components/infinite-destinations-scroll'
 import { createClient } from '@/lib/supabase/server'
@@ -69,31 +68,6 @@ export default async function HomePage() {
     .eq('show_in_scroll', true)
     .eq('is_active', true)
     .order('display_order', { ascending: true })
-    .order('created_at', { ascending: false })
-
-  // Fetch packages for featured/hero sections
-  const { data: packages } = await supabase
-    .from('travel_packages')
-    .select(`
-      id,
-      name,
-      description,
-      destination,
-      duration_days,
-      cover_image,
-      price_estimate,
-      category,
-      package_itinerary_items (
-        id,
-        title,
-        description,
-        day_number,
-        category,
-        show_in_landing
-      )
-    `)
-    .eq('is_featured', true)
-    .eq('is_active', true)
     .order('created_at', { ascending: false })
 
   // Fetch packages for hero section
@@ -406,9 +380,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Travel Packages Section */}
-      <PackagesSection packages={packages || []} />
-
       {/* Destination Showcase Divider */}
       <section className="relative h-[60vh] my-20 overflow-hidden">
         <Image
@@ -427,7 +398,7 @@ export default async function HomePage() {
             <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-lg">
               Miles de destinos, infinitas experiencias. Tu próxima aventura comienza aquí.
             </p>
-            <Link href="/auth/register">
+            <Link href="/paquetes">
               <Button size="lg" className="text-lg px-10 bg-white text-blue-600 hover:bg-gray-100 shadow-2xl hover:scale-105 transition-transform">
                 <Compass className="w-5 h-5 mr-2" />
                 Explorar Destinos

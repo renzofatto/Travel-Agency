@@ -117,13 +117,13 @@ export default function LandingNavbar({ user }: LandingNavbarProps) {
                 <span className="relative z-10">Servicios</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300" />
               </a>
-              <a
-                href="#paquetes"
+              <Link
+                href="/paquetes"
                 className="relative px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-300 font-bold text-sm group/nav rounded-2xl hover:bg-white/40 backdrop-blur-sm"
               >
                 <span className="relative z-10">Paquetes</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover/nav:opacity-100 transition-opacity duration-300" />
-              </a>
+              </Link>
               <a
                 href="#plataforma"
                 className="relative px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-300 font-bold text-sm group/nav rounded-2xl hover:bg-white/40 backdrop-blur-sm"
