@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import RouteMap from '@/components/packages/route-map'
+import EnhancedItineraryTimeline from '@/components/packages/enhanced-itinerary-timeline'
 import {
   ArrowLeft,
   Calendar,
@@ -27,14 +28,6 @@ const categoryLabels = {
   beach: { label: 'Playa', color: 'bg-cyan-100 text-cyan-700', emoji: '🏖️' },
   city: { label: 'Ciudad', color: 'bg-gray-100 text-gray-700', emoji: '🏙️' },
   family: { label: 'Familia', color: 'bg-pink-100 text-pink-700', emoji: '👨‍👩‍👧‍👦' },
-}
-
-const categoryEmojis: Record<string, string> = {
-  transport: '🚗',
-  accommodation: '🏨',
-  activity: '🎯',
-  food: '🍽️',
-  other: '📌',
 }
 
 export default async function PackageDetailPage({
@@ -94,17 +87,6 @@ export default async function PackageDetailPage({
     .select('*')
     .eq('package_id', id)
     .order('order_index', { ascending: true })
-
-  // Group itinerary items by day
-  const itemsByDay: Record<number, typeof pkg.package_itinerary_items> = {}
-  pkg.package_itinerary_items
-    .sort((a, b) => a.day_number - b.day_number || a.order_index - b.order_index)
-    .forEach((item) => {
-      if (!itemsByDay[item.day_number]) {
-        itemsByDay[item.day_number] = []
-      }
-      itemsByDay[item.day_number].push(item)
-    })
 
   const categoryInfo = pkg.category
     ? categoryLabels[pkg.category as keyof typeof categoryLabels]
@@ -233,87 +215,9 @@ export default async function PackageDetailPage({
               </CardContent>
             </Card>
 
-            {/* Itinerary */}
-            {Object.keys(itemsByDay).length > 0 && (
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-blue-600" />
-                    Itinerario Día a Día
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {Object.keys(itemsByDay)
-                      .map(Number)
-                      .sort((a, b) => a - b)
-                      .map((day) => (
-                        <div key={day} className="border-l-4 border-blue-600 pl-6 pb-6 last:pb-0">
-                          <div className="flex items-center gap-3 mb-4 -ml-9">
-                            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
-                              {day}
-                            </div>
-                            <h3 className="text-xl font-semibold">Día {day}</h3>
-                          </div>
-
-                          <div className="space-y-4">
-                            {itemsByDay[day].map((item) => (
-                              <div
-                                key={item.id}
-                                className="bg-white rounded-lg border hover:shadow-md transition-shadow overflow-hidden"
-                              >
-                                <div className="grid md:grid-cols-2 gap-4">
-                                  {/* Image side */}
-                                  {item.image_url && (
-                                    <div className="relative h-48 md:h-full min-h-[200px]">
-                                      <Image
-                                        src={item.image_url}
-                                        alt={item.title}
-                                        fill
-                                        className="object-cover"
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                      />
-                                    </div>
-                                  )}
-
-                                  {/* Content side */}
-                                  <div className={`p-4 flex items-start gap-3 ${!item.image_url ? 'md:col-span-2' : ''}`}>
-                                    <span className="text-3xl flex-shrink-0">{categoryEmojis[item.category]}</span>
-                                    <div className="flex-1">
-                                      <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
-                                      {item.description && (
-                                        <p className="text-gray-600 text-sm mb-2">
-                                          {item.description}
-                                        </p>
-                                      )}
-                                      <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-                                        {item.start_time && (
-                                          <div className="flex items-center gap-1">
-                                            <Clock className="w-4 h-4" />
-                                            <span>
-                                              {item.start_time}
-                                              {item.end_time && ` - ${item.end_time}`}
-                                            </span>
-                                          </div>
-                                        )}
-                                        {item.location && (
-                                          <div className="flex items-center gap-1">
-                                            <MapPin className="w-4 h-4" />
-                                            <span>{item.location}</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Enhanced Itinerary Timeline */}
+            {pkg.package_itinerary_items.length > 0 && (
+              <EnhancedItineraryTimeline items={pkg.package_itinerary_items} />
             )}
 
             {/* Route Map */}
