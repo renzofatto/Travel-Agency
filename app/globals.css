@@ -90,6 +90,16 @@
   section[id] {
     scroll-margin-top: 5rem; /* 80px - altura aproximada del navbar + padding */
   }
+
+  /* Cursor pointer for all interactive elements */
+  button,
+  a,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  label[for] {
+    cursor: pointer;
+  }
 }
 
 /* Custom Animations */

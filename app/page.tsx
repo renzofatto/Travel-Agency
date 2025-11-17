@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import LandingNavbar from '@/components/layout/landing-navbar'
 import InfiniteDestinationsScroll from '@/components/infinite-destinations-scroll'
+import ScrollToHash from '@/components/scroll-to-hash'
 import { createClient } from '@/lib/supabase/server'
 import {
   Plane,
@@ -87,6 +88,9 @@ export default async function HomePage() {
     .limit(4) // Show max 4 in hero collage
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Scroll to hash handler */}
+      <ScrollToHash />
+
       {/* Floating particles background */}
       <div className="fixed top-0 left-0 right-0 h-32 z-40 pointer-events-none overflow-hidden">
         <div className="absolute top-10 left-[10%] w-2 h-2 bg-blue-400/30 rounded-full animate-float-slow" />
@@ -144,11 +148,11 @@ export default async function HomePage() {
                     Comenzar mi Viaje
                   </Button>
                 </Link>
-                <a href="#paquetes">
+                <Link href="/paquetes">
                   <Button size="lg" variant="outline" className="text-lg px-8 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-white/30">
                     Ver Paquetes
                   </Button>
-                </a>
+                </Link>
               </div>
               <div className="flex items-center gap-8 text-sm text-white/90">
                 <div className="flex items-center gap-2">
